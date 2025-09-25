@@ -70,35 +70,6 @@
             margin: 15px 0;
         }
         
-    .github-corner svg {
-      fill: rgb(255, 255, 255); /* 设置默认颜色为白色 */
-      color: rgb(0, 0, 0); /* 设置图标默认颜色 */
-      position: absolute;
-      top: 0;
-      right: 0;
-      border: 0;
-      width: 80px;
-      height: 80px;
-      z-index: 11; /* 确保三角形在最上层 */
-	
-    }
-
-    .github-corner:hover .octo-arm {
-      animation: octocat-wave 560ms ease-in-out;
-      z-index: 10; /* 将三角形部分放到最上层 */
-    }
-
-    /* 添加章鱼猫挥手动画关键帧 */
-    @keyframes octocat-wave {
-      0%, 100% { transform: rotate(0); }
-      20%, 60% { transform: rotate(-25deg); }
-      40%, 80% { transform: rotate(10deg); }
-    }
-
-    @media (max-width: 576px) {
-      .container {
-        padding: 20px;
-      }
 
       .github-corner:hover .octo-arm {
         animation: none;
@@ -108,6 +79,17 @@
         animation: octocat-wave 560ms ease-in-out;
       }
     }
+  /* 三角形部分，设置为最上层 */
+ .github-corner svg path:first-child {
+    position: relative; /* 确保位置设置为相对定位 */
+    z-index: 2;  /* 使三角形处于最上层 */
+  }
+
+  /* 将身体部分层级调整到最上层 */
+  .github-corner svg .octo-body {
+    position: relative; /* 确保位置设置为相对定位 */
+    z-index: 3;  /* 使身体部分处于最上层 */
+  }
   </style>
 </head>
 
