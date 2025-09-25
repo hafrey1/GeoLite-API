@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoLite API - IP地理位置查询服务</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .api-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .example {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌍 GeoLite API</h1>
+        <p>基于GeoLite2-Country.mmdb的高性能IP地理位置查询服务</p>
+        <p>支持批量查询 • 混合IP与域名 • 一键部署Vercel</p>
+    </div>
+
+    <div class="feature">
+        <h3>✨ 核心功能</h3>
+        <ul>
+            <li><strong>高性能查询</strong>：基于MaxMind GeoLite2-Country.mmdb二进制数据库</li>
+            <li><strong>批量处理</strong>：单次最多支持100个IP地址和域名查询</li>
+            <li><strong>混合查询</strong>：自动识别和处理IP地址与域名</li>
+            <li><strong>DNS解析</strong>：自动将域名解析为IP地址</li>
+            <li><strong>多格式输出</strong>：支持JSON和CSV格式</li>
+        </ul>
+    </div>
+
+    <div class="api-section">
+        <h2>📡 API接口</h2>
+        
+        <h3>1. 单个查询接口</h3>
+        <div class="endpoint">GET /api/query?input={IP或域名}</div>
+        <div class="endpoint">POST /api/query</div>
+        
+        <div class="example">
+            <h4>请求示例：</h4>
+            <pre>curl "https://your-domain.vercel.app/api/query?input=8.8.8.8"
+curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
+        </div>
+        
+        <div class="example">
+            <h4>响应示例：</h4>
+            <pre>{
+  "success": true,
+  "data": {
+    "input": "8.8.8.8",
+    "type": "ip",
+    "ip": "8.8.8.8",
+    "country_code": "US",
+    "country_name": "美国",
+    "continent_code": "NA",
+    "continent_name": "北美洲",
+    "status": "success"
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}</pre>
+        </div>
+
+        <h3>2. 批量查询接口</h3>
+        <div class="endpoint">POST /api/batch</div>
+        
+        <div class="example">
+            <h4>请求示例：</h4>
+            <pre>curl -X POST "https://your-domain.vercel.app/api/batch" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "inputs": ["8.8.8.8", "google.com", "1.1.1.1", "github.com"],
+    "format": "json"
+  }'</pre>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>🚀 部署说明</h2>
+        <ol>
+            <li>从GitHub克隆项目</li>
+            <li>下载GeoLite2-Country.mmdb数据库文件到data目录</li>
+            <li>点击下方按钮一键部署到Vercel</li>
+        </ol>
+        
+        <a href="https://vercel.com/new/clone?repository-url=https://github.com/your-username/GeoLite-API" class="btn">
+            🚀 部署到 Vercel
+        </a>
+        <a href="/test" class="btn">🧪 批量测试工具</a>
+    </div>
+
+    <div class="api-section">
+        <h2>📊 响应字段说明</h2>
+        <ul>
+            <li><code>input</code>: 输入的IP地址或域名</li>
+            <li><code>type</code>: 输入类型（ip/domain/invalid）</li>
+            <li><code>ip</code>: 查询的IP地址</li>
+            <li><code>resolved_ip</code>: 域名解析后的IP地址</li>
+            <li><code>country_code</code>: 国家代码（ISO 3166-1 alpha-2）</li>
+            <li><code>country_name</code>: 国家名称（中文/英文）</li>
+            <li><code>continent_code</code>: 洲代码</li>
+            <li><code>continent_name</code>: 洲名称</li>
+            <li><code>status</code>: 查询状态（success/error/not_found）</li>
+        </ul>
+    </div>
+
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
+        <p>© 2024 GeoLite API - Powered by MaxMind GeoLite2 Database</p>
+    </footer>
+</body>
+</html>
