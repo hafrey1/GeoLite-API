@@ -26,7 +26,9 @@ module.exports = async (req, res) => {
         inputs = JSON.parse(inputs);
       } catch {
         // 如果不是JSON，按行或逗号分割
-        inputs = inputs.split(/[\r\n,]+/).map(item => item.trim()).filter(item => item);
+        inputs = inputs.split(/[\r\n,]+/)
+          .map(item => item.trim())
+          .filter(item => item);
       }
     }
     
@@ -44,7 +46,7 @@ module.exports = async (req, res) => {
       });
     }
     
-    // 限制批量查询数量
+    // 限制批量查询数量（Vercel限制）
     if (inputs.length > 100) {
       return res.status(400).json({
         error: '查询数量超限',
@@ -55,94 +57,102 @@ module.exports = async (req, res) => {
     const results = [];
     const startTime = Date.now();
     
-    // 批量处理
-    for (const input of inputs) {
-      if (!input || typeof input !== 'string') {
-        results.push({
-          input: input,
-          type: 'invalid',
-          status: 'error',
-          message: '无效输入格式'
-        });
-        continue;
-      }
-      
-      const cleanInput = input.trim();
-      
-      if (isValidIP(cleanInput)) {
-        // 处理IP地址
-        results.push({
-          input: cleanInput,
-          type: 'ip',
-          ...queryIP(cleanInput)
-        });
-      } else if (isDomain(cleanInput)) {
-        // 处理域名
-        try {
-          const dnsResult = await resolveDomain(cleanInput);
+    // 并发处理查询请求
+    const promises = inputs.map(async (input) => {
+      try {
+        if (isValidIP(input)) {
+          // 直接查询IP
+          return {
+            input: input,
+            type: 'ip',
+            ...queryIP(input)
+          };
+        } else if (isDomain(input)) {
+          // 解析域名后查询
+          const dnsResult = await resolveDomain(input);
           
           if (dnsResult.status === 'success') {
             const geoResult = queryIP(dnsResult.ip);
-            results.push({
-              input: cleanInput,
+            return {
+              input: input,
               type: 'domain',
               resolved_ip: dnsResult.ip,
               dns_type: dnsResult.type,
               ...geoResult
-            });
+            };
           } else {
-            results.push({
-              input: cleanInput,
+            return {
+              input: input,
               type: 'domain',
               resolved_ip: null,
               status: 'error',
               message: `域名解析失败: ${dnsResult.message}`
-            });
+            };
           }
-        } catch (error) {
-          results.push({
-            input: cleanInput,
-            type: 'domain',
-            resolved_ip: null,
+        } else {
+          return {
+            input: input,
+            type: 'invalid',
             status: 'error',
-            message: `域名解析异常: ${error.message}`
-          });
+            message: '无效的IP地址或域名格式'
+          };
         }
-      } else {
-        results.push({
-          input: cleanInput,
-          type: 'invalid',
+      } catch (error) {
+        return {
+          input: input,
           status: 'error',
-          message: '无效的IP地址或域名格式'
-        });
+          message: error.message
+        };
       }
-    }
+    });
     
-    const processingTime = Date.now() - startTime;
-    const successCount = results.filter(r => r.status === 'success').length;
-    const errorCount = results.length - successCount;
+    const results_data = await Promise.all(promises);
+    const endTime = Date.now();
     
-    const response = {
-      success: true,
-      data: results,
-      statistics: {
-        total: results.length,
-        success: successCount,
-        error: errorCount,
-        processing_time_ms: processingTime
-      },
-      timestamp: new Date().toISOString()
+    // 统计结果
+    const stats = {
+      total: results_data.length,
+      success: results_data.filter(r => r.status === 'success').length,
+      error: results_data.filter(r => r.status === 'error').length,
+      not_found: results_data.filter(r => r.status === 'not_found').length,
+      processing_time: endTime - startTime
     };
     
-    // 支持CSV格式输出
+    // 根据格式返回结果
     if (format === 'csv') {
-      const csv = generateCSV(results);
-      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-      res.setHeader('Content-Disposition', 'attachment; filename="geoip-results.csv"');
-      return res.send(csv);
+      // CSV格式输出
+      const csvHeader = 'Input,Type,IP,Country Code,Country Name,Continent Code,Continent Name,Status,Message\n';
+      const csvRows = results_data.map(item => {
+        const escapeCSV = (str) => {
+          if (!str) return '';
+          return `"${String(str).replace(/"/g, '""')}"`;
+        };
+        
+        return [
+          escapeCSV(item.input),
+          escapeCSV(item.type),
+          escapeCSV(item.resolved_ip || item.ip),
+          escapeCSV(item.country_code),
+          escapeCSV(item.country_name),
+          escapeCSV(item.continent_code),
+          escapeCSV(item.continent_name),
+          escapeCSV(item.status),
+          escapeCSV(item.message)
+        ].join(',');
+      }).join('\n');
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=geolocation_results.csv');
+      return res.send(csvHeader + csvRows);
     }
     
-    res.json(response);
+    // 默认JSON格式
+    res.json({
+      success: true,
+      data: results_data,
+      stats: stats,
+      timestamp: new Date().toISOString()
+    });
     
   } catch (error) {
     console.error('批量查询错误:', error);
@@ -153,27 +163,3 @@ module.exports = async (req, res) => {
     });
   }
 };
-
-// 生成CSV格式
-function generateCSV(results) {
-  const headers = ['输入', '类型', 'IP地址', '解析IP', '国家代码', '国家名称', '洲代码', '洲名称', '状态', '错误信息'];
-  const csvLines = [headers.join(',')];
-  
-  results.forEach(result => {
-    const row = [
-      `"${result.input || ''}"`,
-      `"${result.type || ''}"`,
-      `"${result.ip || result.resolved_ip || ''}"`,
-      `"${result.resolved_ip || ''}"`,
-      `"${result.country_code || ''}"`,
-      `"${result.country_name || ''}"`,
-      `"${result.continent_code || ''}"`,
-      `"${result.continent_name || ''}"`,
-      `"${result.status || ''}"`,
-      `"${result.message || ''}"`
-    ];
-    csvLines.push(row.join(','));
-  });
-  
-  return csvLines.join('\n');
-}
