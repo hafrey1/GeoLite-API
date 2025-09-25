@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/batch.html"
+      "destination": "/index.html"
     },
     {
-      "source": "/index",
-      "destination": "/index.html"
+      "source": "/batch",
+      "destination": "/batch.html"
     }
   ],
   "headers": [
