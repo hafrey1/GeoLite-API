@@ -1,0 +1,18 @@
+{
+  "name": "geolite-api",
+  "version": "1.0.0",
+  "description": "GeoLite2 IP Geolocation API for Vercel",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build complete'",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "maxmind": "^4.3.6",
+    "dns": "^0.2.2"
+  },
+  "keywords": ["geoip", "geolite2", "vercel", "api", "geolocation"],
+  "author": "hafrey",
+  "license": "MIT"
+}
