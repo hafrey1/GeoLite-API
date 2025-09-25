@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
     }
     
     // 限制批量查询数量（Vercel限制）
-    if (inputs.length > 100) {
+    if (inputs.length > 200) {
       return res.status(400).json({
         error: '查询数量超限',
         message: '单次批量查询最多支持100个地址'
