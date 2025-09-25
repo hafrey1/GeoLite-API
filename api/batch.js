@@ -151,14 +151,15 @@ module.exports = async (req, res) => {
       timestamp: new Date().toISOString()
     };
     
-    // 格式化JSON输出
-    if (format === 'pretty' || format === 'formatted') {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      return res.send(JSON.stringify(responseData, null, 2));
+    // 根据format参数决定输出格式
+    if (format === 'compact' || format === 'compressed') {
+      // 压缩输出
+      return res.json(responseData);
     }
     
-    // 默认压缩输出
-    res.json(responseData);
+    // **默认格式化输出**，便于阅读
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.send(JSON.stringify(responseData, null, 2));
     
   } catch (error) {
     console.error('批量查询错误:', error);
@@ -170,11 +171,11 @@ module.exports = async (req, res) => {
     
     const { format } = req.method === 'GET' ? req.query : req.body;
     
-    if (format === 'pretty' || format === 'formatted') {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      return res.status(500).send(JSON.stringify(errorResponse, null, 2));
+    if (format === 'compact' || format === 'compressed') {
+      return res.status(500).json(errorResponse);
     }
     
-    res.status(500).json(errorResponse);
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.status(500).send(JSON.stringify(errorResponse, null, 2));
   }
 };
