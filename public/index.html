@@ -81,13 +81,13 @@
     }
   /* 三角形部分，设置为最上层 */
  .github-corner svg path:first-child {
-    position: relative; /* 确保位置设置为相对定位 */
+    position: absolute; /* 确保位置设置为相对定位 */
     z-index: 2;  /* 使三角形处于最上层 */
   }
 
   /* 将身体部分层级调整到最上层 */
   .github-corner svg .octo-body {
-    position: relative; /* 确保位置设置为相对定位 */
+    position: absolute; /* 确保位置设置为相对定位 */
     z-index: 3;  /* 使身体部分处于最上层 */
   }
   </style>
