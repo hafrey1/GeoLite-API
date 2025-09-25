@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoLite API - 批量测试工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .results {
+            margin-top: 30px;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            text-align: center;
+            margin: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .results-table th,
+        .results-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .results-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .status-success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 GeoLite API 批量测试工具</h1>
+            <p>批量查询IP地址和域名的地理位置信息</p>
+        </div>
+
+        <div class="input-section">
+            <h3>📝 输入IP地址和域名（每行一个）：</h3>
+            <textarea id="inputText" placeholder="请输入IP地址或域名，每行一个，例如：
+8.8.8.8
+google.com
+1.1.1.1
+github.com
+baidu.com
+114.114.114.114
+cloudflare.com"></textarea>
+            
+            <div class="controls">
+                <button class="btn" onclick="startBatchQuery()" id="queryBtn">
+                    🚀 开始批量查询
+                </button>
+                <button class="btn secondary" onclick="loadSampleData()">
+                    📄 加载示例数据
+                </button>
+                <button class="btn secondary" onclick="clearResults()">
+                    🗑️ 清空结果
+                </button>
+                <label>
+                    <input type="checkbox" id="exportCsv"> 导出CSV格式
+                </label>
+            </div>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <h3>📊 查询结果</h3>
+            <div class="stats" id="stats"></div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentResults = null;
+
+        // 加载示例数据
+        function loadSampleData() {
+            const sampleData = `8.8.8.8
+google.com
+1.1.1.1
+cloudflare.com
+baidu.com
+114.114.114.114
+github.com
+youtube.com
+facebook.com
+twitter.com`;
+            document.getElementById('inputText').value = sampleData;
+        }
+
+        // 开始批量查询
+        async function startBatchQuery() {
+            const inputText = document.getElementById('inputText').value.trim();
+            if (!inputText) {
+                alert('请输入IP地址或域名');
+                return;
+            }
+
+            const queryBtn = document.getElementById('queryBtn');
+            const resultsDiv = document.getElementById('results');
+            
+            queryBtn.disabled = true;
+            queryBtn.innerHTML = '⏳ 查询中...';
+            resultsDiv.style.display = 'block';
+            
+            // 显示加载状态
+            document.getElementById('resultsContent').innerHTML = '<div class="loading">正在查询中，请稍候...</div>';
+            
+            try {
+                const inputs = inputText.split('\n').map(line => line.trim()).filter(line => line);
+                const exportCsv = document.getElementById('exportCsv').checked;
+                
+                const response = await fetch('/api/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputs: inputs,
+                        format: exportCsv ? 'csv' : 'json'
+                    })
+                });
+
+                if (exportCsv) {
+                    // 处理CSV下载
+                    const csvData = await response.text();
+                    const blob = new Blob([csvData], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `geoip-results-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    document.getElementById('resultsContent').innerHTML = '<div class="loading">CSV文件已下载！</div>';
+                } else {
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        currentResults = data;
+                        displayResults(data);
+                    } else {
+                        throw new Error(data.message || '查询失败');
+                    }
+                }
+            } catch (error) {
+                console.error('查询错误:', error);
+                document.getElementById('resultsContent').innerHTML = 
+                    `<div class="error">查询失败：${error.message}</div>`;
+            } finally {
+                queryBtn.disabled = false;
+                queryBtn.innerHTML = '🚀 开始批量查询';
+            }
+        }
+
+        // 显示查询结果
+        function displayResults(data) {
+            const stats = data.statistics;
+            const results = data.data;
+            
+            // 显示统计信息
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.total}</div>
+                    <div>总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #28a745;">${stats.success}</div>
+                    <div>成功</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" style="color: #dc3545;">${stats.error}</div>
+                    <div>失败</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.processing_time_ms}ms</div>
+                    <div>处理时间</div>
+                </div>
+                <div class="stat-item">
+                    <button class="btn success" onclick="exportToCsv()">📥 导出CSV</button>
+                </div>
+            `;
+            
+            // 显示详细结果表格
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>输入</th>
+                            <th>类型</th>
+                            <th>IP地址</th>
+                            <th>国家代码</th>
+                            <th>国家名称</th>
+                            <th>洲代码</th>
+                            <th>状态</th>
+                            <th>信息</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            results.forEach((result, index) => {
+                const statusClass = result.status === 'success' ? 'status-success' : 'status-error';
+                const ip = result.ip || result.resolved_ip || '-';
+                
+                tableHTML += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${result.input}</td>
+                        <td>${result.type}</td>
+                        <td>${ip}</td>
+                        <td>${result.country_code || '-'}</td>
+                        <td>${result.country_name || '-'}</td>
+                        <td>${result.continent_code || '-'}</td>
+                        <td class="${statusClass}">${result.status}</td>
+                        <td>${result.message || '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('resultsContent').innerHTML = tableHTML;
+        }
+
+        // 导出CSV
+        function exportToCsv() {
+            if (!currentResults) {
+                alert('没有可导出的数据');
+                return;
+            }
+            
+            const results = currentResults.data;
+            const headers = ['序号', '输入', '类型', 'IP地址', '解析IP', '国家代码', '国家名称', '洲代码', '洲名称', '状态', '信息'];
+            const csvData = [headers.join(',')];
+            
+            results.forEach((result, index) => {
+                const row = [
+                    index + 1,
+                    `"${result.input || ''}",
+                    `"${result.type || ''}",
+                    `"${result.ip || ''}",
+                    `"${result.resolved_ip || ''}",
+                    `"${result.country_code || ''}",
+                    `"${result.country_name || ''}",
+                    `"${result.continent_code || ''}",
+                    `"${result.continent_name || ''}",
+                    `"${result.status || ''}",
+                    `"${result.message || ''}"
+                ];
+                csvData.push(row.join(','));
+            });
+            
+            const csvContent = csvData.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `geoip-results-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // 清空结果
+        function clearResults() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('results').style.display = 'none';
+            currentResults = null;
+        }
+    </script>
+</body>
+</html>
