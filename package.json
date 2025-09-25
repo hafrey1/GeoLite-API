@@ -9,8 +9,7 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "maxmind": "^4.3.6",
-    "dns": "^0.2.2"
+    "maxmind": "^4.3.6"
   },
   "keywords": ["geoip", "geolite2", "vercel", "api", "geolocation"],
   "author": "hafrey",
