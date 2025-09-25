@@ -6,18 +6,18 @@
       "maxDuration": 10
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/public/index.html"
+      "source": "/",
+      "destination": "/public/index.html"
     },
     {
-      "src": "/test",
-      "dest": "/public/test.html"
+      "source": "/test",
+      "destination": "/public/test.html"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     }
   ],
   "headers": [
