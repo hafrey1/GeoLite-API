@@ -1,42 +1,26 @@
+
 {
   "version": 2,
   "functions": {
     "api/*.js": {
-      "runtime": "@vercel/node",
+      "runtime": "nodejs18.x",
       "maxDuration": 10
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/public/index.html"
+      "src": "/",
+      "dest": "/public/index.html"
     },
     {
-      "source": "/test",
-      "destination": "/public/test.html"
+      "src": "/test",
+      "dest": "/public/test.html"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
     }
   ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type"
-        }
-      ]
-    }
-  ]
+ 
+   
 }
