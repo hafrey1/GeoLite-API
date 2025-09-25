@@ -69,7 +69,32 @@
             border-left: 4px solid #007bff;
             margin: 15px 0;
         }
-        
+        .github-corner svg {
+      fill: rgb(255, 255, 255); /* 设置默认颜色为白色 */
+      color: rgb(0,0,0); /* 设置图标默认颜色 */
+      position: absolute;
+      top: 0;
+      right: 0;
+      border: 0;
+      width: 80px;
+      height: 80px;
+    }
+
+    .github-corner:hover .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+
+    /* 添加章鱼猫挥手动画关键帧 */
+    @keyframes octocat-wave {
+      0%, 100% { transform: rotate(0); }
+      20%, 60% { transform: rotate(-25deg); }
+      40%, 80% { transform: rotate(10deg); }
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 20px;
+      }
 
       .github-corner:hover .octo-arm {
         animation: none;
