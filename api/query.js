@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     // 初始化GeoIP数据库
     await initGeoIP();
     
-    const { input } = req.method === 'GET' ? req.query : req.body;
+    const { input, format } = req.method === 'GET' ? req.query : req.body;
     
     if (!input) {
       return res.status(400).json({
@@ -23,14 +23,14 @@ module.exports = async (req, res) => {
     let result;
     
     if (isValidIP(input)) {
-      // 直接查询IP
+      // 直接查询IP地址
       result = {
         input: input,
         type: 'ip',
         ...queryIP(input)
       };
     } else if (isDomain(input)) {
-      // 先解析域名，再查询IP
+      // 先解析域名，再查询IP位置
       const dnsResult = await resolveDomain(input);
       
       if (dnsResult.status === 'success') {
@@ -58,18 +58,37 @@ module.exports = async (req, res) => {
       });
     }
     
-    res.json({
+    const responseData = {
       success: true,
       data: result,
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    // 根据format参数决定是否格式化输出
+    if (format === 'pretty' || format === 'formatted') {
+      // 格式化输出，便于阅读
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      return res.send(JSON.stringify(responseData, null, 2));
+    }
+    
+    // 默认压缩输出
+    res.json(responseData);
     
   } catch (error) {
     console.error('查询错误:', error);
-    res.status(500).json({
+    const errorResponse = {
       success: false,
       error: '服务器内部错误',
       message: error.message
-    });
+    };
+    
+    const { format } = req.method === 'GET' ? req.query : req.body;
+    
+    if (format === 'pretty' || format === 'formatted') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      return res.status(500).send(JSON.stringify(errorResponse, null, 2));
+    }
+    
+    res.status(500).json(errorResponse);
   }
 };
