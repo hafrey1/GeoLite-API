@@ -3,6 +3,10 @@
     {
       "source": "/",
       "destination": "/batch.html"
+    },
+    {
+      "source": "/index",
+      "destination": "/index.html"
     }
   ],
   "headers": [
