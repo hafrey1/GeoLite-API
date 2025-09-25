@@ -217,6 +217,53 @@ baidu.com
 cloudflare.com
 youtube.com
 facebook.com
+twitter.com"></textarea>
+
+            <div class="controls">
+                <button class="btn" onclick="startBatchQuery()" id="queryBtn">
+                    🚀 开始批量查询
+                </button>
+                <button class="btn secondary" onclick="loadSampleData()">
+                    📄 加载示例数据
+                </button>
+                <button class="btn secondary" onclick="clearResults()">
+                    🗑️ 清空结果
+                </button>
+                <label>
+                    <input type="checkbox" id="exportCsv"> 直接导出CSV格式
+                </label>
+            </div>
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <h3>📊 查询结果</h3>
+            <div class="stats" id="stats"></div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentResults = null;
+
+        // 加载示例数据
+        function loadSampleData() {
+            const sampleData = `8.8.8.8
+google.com
+1.1.1.1
+cloudflare.com
+baidu.com
+114.114.114.114
+github.com
+youtube.com
+facebook.com
+twitter.com
+208.67.222.222
+amazon.com
+microsoft.com
+apple.com
 35.229.225.152
 104.199.178.70
 34.80.109.47
@@ -311,54 +358,7 @@ facebook.com
 35.204.79.99
 34.90.129.65
 34.90.22.40
-35.204.21.106    
-twitter.com"></textarea>
-
-            <div class="controls">
-                <button class="btn" onclick="startBatchQuery()" id="queryBtn">
-                    🚀 开始批量查询
-                </button>
-                <button class="btn secondary" onclick="loadSampleData()">
-                    📄 加载示例数据
-                </button>
-                <button class="btn secondary" onclick="clearResults()">
-                    🗑️ 清空结果
-                </button>
-                <label>
-                    <input type="checkbox" id="exportCsv"> 直接导出CSV格式
-                </label>
-            </div>
-            <div class="progress-bar" id="progressBar" style="display: none;">
-                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-            </div>
-        </div>
-
-        <div class="results" id="results" style="display: none;">
-            <h3>📊 查询结果</h3>
-            <div class="stats" id="stats"></div>
-            <div id="resultsContent"></div>
-        </div>
-    </div>
-
-    <script>
-        let currentResults = null;
-
-        // 加载示例数据
-        function loadSampleData() {
-            const sampleData = `8.8.8.8
-google.com
-1.1.1.1
-cloudflare.com
-baidu.com
-114.114.114.114
-github.com
-youtube.com
-facebook.com
-twitter.com
-208.67.222.222
-amazon.com
-microsoft.com
-apple.com
+35.204.21.106
 netflix.com`;
             document.getElementById('inputText').value = sampleData;
         }
