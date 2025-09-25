@@ -3,503 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoLite API - 批量测试工具</title>
+    <title>GeoLite API - IP地理位置查询服务</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            line-height: 1.6;
+            color: #333;
         }
-        
-        .container {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
         }
-        
-        .input-section {
-            margin-bottom: 30px;
-        }
-        
-        textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 14px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        .api-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
             margin: 20px 0;
-            flex-wrap: wrap;
         }
-        
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .example {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
         .btn {
             background: #007bff;
             color: white;
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
         }
-        
         .btn:hover {
             background: #0056b3;
         }
-        
-        .btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        .btn.secondary {
-            background: #6c757d;
-        }
-        
-        .btn.success {
-            background: #28a745;
-        }
-        
-        .results {
-            margin-top: 30px;
-        }
-        
-        .stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            margin: 5px;
-        }
-        
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
-            overflow-x: auto;
-            display: block;
-            white-space: nowrap;
-        }
-        
-        .results-table thead,
-        .results-table tbody {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-        
-        .results-table th,
-        .results-table td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid #dee2e6;
-            word-wrap: break-word;
-        }
-        
-        .results-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        
-        .status-success {
-            color: #28a745;
-            font-weight: bold;
-        }
-        
-        .status-error {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        
-        .loading {
-            text-align: center;
+        .feature {
+            background: white;
             padding: 20px;
-            color: #6c757d;
-        }
-        
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
             margin: 15px 0;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #f8f9fa;
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #007bff, #28a745);
-            transition: width 0.3s ease;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .controls {
-                justify-content: center;
-            }
-            
-            .stats {
-                justify-content: center;
-            }
-            
-            .results-table {
-                font-size: 12px;
-            }
-            
-            .results-table th,
-            .results-table td {
-                padding: 6px 8px;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🧪 GeoLite API 批量测试工具</h1>
-            <p>批量查询IP地址和域名的地理位置信息</p>
+    <div class="header">
+        <h1>🌍 GeoLite API</h1>
+        <p>基于GeoLite2-Country.mmdb的高性能IP地理位置查询服务</p>
+        <p>支持批量查询 • 混合IP与域名 • 一键部署Vercel</p>
+    </div>
+
+    <div class="feature">
+        <h3>✨ 核心功能</h3>
+        <ul>
+            <li><strong>高性能查询</strong>：基于MaxMind GeoLite2-Country.mmdb二进制数据库</li>
+            <li><strong>批量处理</strong>：单次最多支持100个IP地址和域名查询</li>
+            <li><strong>混合查询</strong>：自动识别和处理IP地址与域名</li>
+            <li><strong>DNS解析</strong>：自动将域名解析为IP地址</li>
+            <li><strong>多格式输出</strong>：支持JSON和CSV格式</li>
+        </ul>
+    </div>
+
+    <div class="api-section">
+        <h2>📡 API接口</h2>
+        
+        <h3>1. 单个查询接口</h3>
+        <div class="endpoint">GET /api/query?input={IP或域名}</div>
+        <div class="endpoint">POST /api/query</div>
+        
+        <div class="example">
+            <h4>请求示例：</h4>
+            <pre>curl "https://your-domain.vercel.app/api/query?input=8.8.8.8"
+curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
+        </div>
+        
+        <div class="example">
+            <h4>响应示例：</h4>
+            <pre>{
+  "success": true,
+  "data": {
+    "input": "8.8.8.8",
+    "type": "ip",
+    "ip": "8.8.8.8",
+    "country_code": "US",
+    "country_name": "美国",
+    "continent_code": "NA",
+    "continent_name": "北美洲",
+    "status": "success"
+  },
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}</pre>
         </div>
 
-        <div class="input-section">
-            <h3>📝 输入IP地址和域名（每行一个）：</h3>
-            <textarea id="inputText" placeholder="请输入IP地址或域名，每行一个，例如：
-8.8.8.8
-google.com
-1.1.1.1
-github.com
-baidu.com
-114.114.114.114
-cloudflare.com
-youtube.com
-facebook.com
-twitter.com"></textarea>
-
-            <div class="controls">
-                <button class="btn" onclick="startBatchQuery()" id="queryBtn">
-                    🚀 开始批量查询
-                </button>
-                <button class="btn secondary" onclick="loadSampleData()">
-                    📄 加载示例数据
-                </button>
-                <button class="btn secondary" onclick="clearResults()">
-                    🗑️ 清空结果
-                </button>
-                <label>
-                    <input type="checkbox" id="exportCsv"> 直接导出CSV格式
-                </label>
-            </div>
-            <div class="progress-bar" id="progressBar" style="display: none;">
-                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-            </div>
-        </div>
-
-        <div class="results" id="results" style="display: none;">
-            <h3>📊 查询结果</h3>
-            <div class="stats" id="stats"></div>
-            <div id="resultsContent"></div>
+        <h3>2. 批量查询接口</h3>
+        <div class="endpoint">POST /api/batch</div>
+        
+        <div class="example">
+            <h4>请求示例：</h4>
+            <pre>curl -X POST "https://your-domain.vercel.app/api/batch" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "inputs": ["8.8.8.8", "google.com", "1.1.1.1", "github.com"],
+    "format": "json"
+  }'</pre>
         </div>
     </div>
 
-    <script>
-        let currentResults = null;
+    <div class="api-section">
+        <h2>🚀 部署说明</h2>
+        <ol>
+            <li>从GitHub克隆项目</li>
+            <li>下载GeoLite2-Country.mmdb数据库文件到data目录</li>
+            <li>点击下方按钮一键部署到Vercel</li>
+        </ol>
+        
+        <a href="https://vercel.com/new/clone?repository-url=https://github.com/your-username/GeoLite-API" class="btn">
+            🚀 部署到 Vercel
+        </a>
+        <a href="/test" class="btn">🧪 批量测试工具</a>
+    </div>
 
-        // 加载示例数据
-        function loadSampleData() {
-            const sampleData = `8.8.8.8
-google.com
-1.1.1.1
-cloudflare.com
-baidu.com
-114.114.114.114
-github.com
-youtube.com
-facebook.com
-twitter.com
-208.67.222.222
-amazon.com
-microsoft.com
-apple.com
-netflix.com`;
-            document.getElementById('inputText').value = sampleData;
-        }
+    <div class="api-section">
+        <h2>📊 响应字段说明</h2>
+        <ul>
+            <li><code>input</code>: 输入的IP地址或域名</li>
+            <li><code>type</code>: 输入类型（ip/domain/invalid）</li>
+            <li><code>ip</code>: 查询的IP地址</li>
+            <li><code>resolved_ip</code>: 域名解析后的IP地址</li>
+            <li><code>country_code</code>: 国家代码（ISO 3166-1 alpha-2）</li>
+            <li><code>country_name</code>: 国家名称（中文/英文）</li>
+            <li><code>continent_code</code>: 洲代码</li>
+            <li><code>continent_name</code>: 洲名称</li>
+            <li><code>status</code>: 查询状态（success/error/not_found）</li>
+        </ul>
+    </div>
 
-        // 显示进度条
-        function showProgress() {
-            document.getElementById('progressBar').style.display = 'block';
-            animateProgress();
-        }
-
-        // 进度条动画
-        function animateProgress() {
-            const progressFill = document.getElementById('progressFill');
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 90) {
-                    clearInterval(interval);
-                } else {
-                    width += Math.random() * 10;
-                    progressFill.style.width = width + '%';
-                }
-            }, 200);
-        }
-
-        // 隐藏进度条
-        function hideProgress() {
-            document.getElementById('progressBar').style.display = 'none';
-            document.getElementById('progressFill').style.width = '0%';
-        }
-
-        // 开始批量查询
-        async function startBatchQuery() {
-            const inputText = document.getElementById('inputText').value.trim();
-            if (!inputText) {
-                alert('请输入IP地址或域名');
-                return;
-            }
-
-            const queryBtn = document.getElementById('queryBtn');
-            const resultsDiv = document.getElementById('results');
-
-            queryBtn.disabled = true;
-            queryBtn.innerHTML = '⏳ 查询中...';
-            resultsDiv.style.display = 'block';
-            showProgress();
-
-            // 显示加载状态
-            document.getElementById('resultsContent').innerHTML = 
-                '<div class="loading">🔍 正在批量查询中，请稍候...</div>';
-
-            try {
-                const inputs = inputText.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line);
-                    
-                const exportCsv = document.getElementById('exportCsv').checked;
-
-                const response = await fetch('/api/batch', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: inputs,
-                        format: exportCsv ? 'csv' : 'json'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                if (exportCsv) {
-                    // 处理CSV下载
-                    const csvData = await response.text();
-                    const blob = new Blob([csvData], { type: 'text/csv' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `geoip-results-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-
-                    document.getElementById('resultsContent').innerHTML = 
-                        '<div class="loading">✅ CSV文件已下载完成！</div>';
-                } else {
-                    const data = await response.json();
-
-                    if (data.success) {
-                        currentResults = data;
-                        displayResults(data);
-                    } else {
-                        throw new Error(data.message || data.error || '查询失败');
-                    }
-                }
-            } catch (error) {
-                console.error('查询错误:', error);
-                document.getElementById('resultsContent').innerHTML =
-                    `<div class="error">❌ 查询失败：${error.message}</div>`;
-            } finally {
-                queryBtn.disabled = false;
-                queryBtn.innerHTML = '🚀 开始批量查询';
-                hideProgress();
-            }
-        }
-
-        // 显示查询结果
-        function displayResults(data) {
-            const stats = data.stats || data.statistics || {};
-            const results = data.data || [];
-
-            // 显示统计信息
-            document.getElementById('stats').innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-value">${stats.total || results.length}</div>
-                    <div>总数</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" style="color: #28a745;">${stats.success || 0}</div>
-                    <div>成功</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" style="color: #dc3545;">${stats.error || 0}</div>
-                    <div>失败</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${stats.processing_time || stats.processing_time_ms || '0'}ms</div>
-                    <div>处理时间</div>
-                </div>
-                <div class="stat-item">
-                    <button class="btn success" onclick="exportToCsv()">📥 导出CSV</button>
-                </div>
-            `;
-
-            // 显示详细结果表格
-            let tableHTML = `
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">#</th>
-                            <th style="width: 150px;">输入</th>
-                            <th style="width: 80px;">类型</th>
-                            <th style="width: 130px;">IP地址</th>
-                            <th style="width: 80px;">国家代码</th>
-                            <th style="width: 100px;">国家名称</th>
-                            <th style="width: 80px;">洲代码</th>
-                            <th style="width: 80px;">状态</th>
-                            <th style="width: 200px;">信息</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            results.forEach((result, index) => {
-                const statusClass = result.status === 'success' ? 'status-success' : 'status-error';
-                const ip = result.ip || result.resolved_ip || '-';
-                const message = result.message || (result.status === 'success' ? '查询成功' : '查询失败');
-
-                tableHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td title="${result.input}">${result.input}</td>
-                        <td>${result.type || 'unknown'}</td>
-                        <td>${ip}</td>
-                        <td>${result.country_code || '-'}</td>
-                        <td>${result.country_name || '-'}</td>
-                        <td>${result.continent_code || '-'}</td>
-                        <td class="${statusClass}">${result.status || 'error'}</td>
-                        <td title="${message}">${message}</td>
-                    </tr>
-                `;
-            });
-
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
-
-            document.getElementById('resultsContent').innerHTML = tableHTML;
-        }
-
-        // 导出CSV
-        function exportToCsv() {
-            if (!currentResults) {
-                alert('没有可导出的数据');
-                return;
-            }
-
-            const results = currentResults.data || [];
-            const headers = ['序号', '输入', '类型', 'IP地址', '解析IP', '国家代码', '国家名称', '洲代码', '洲名称', '状态', '信息'];
-            const csvData = [headers.join(',')];
-
-            results.forEach((result, index) => {
-                const row = [
-                    index + 1,
-                    `"${(result.input || '').replace(/"/g, '""')}"`,
-                    `"${(result.type || '').replace(/"/g, '""')}"`,
-                    `"${(result.ip || '').replace(/"/g, '""')}"`,
-                    `"${(result.resolved_ip || '').replace(/"/g, '""')}"`,
-                    `"${(result.country_code || '').replace(/"/g, '""')}"`,
-                    `"${(result.country_name || '').replace(/"/g, '""')}"`,
-                    `"${(result.continent_code || '').replace(/"/g, '""')}"`,
-                    `"${(result.continent_name || '').replace(/"/g, '""')}"`,
-                    `"${(result.status || '').replace(/"/g, '""')}"`,
-                    `"${(result.message || '').replace(/"/g, '""')}"`
-                ];
-                csvData.push(row.join(','));
-            });
-
-            const csvContent = csvData.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `geoip-results-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        // 清空结果
-        function clearResults() {
-            document.getElementById('inputText').value = '';
-            document.getElementById('results').style.display = 'none';
-            currentResults = null;
-            hideProgress();
-        }
-
-        // 页面加载完成后的初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('GeoLite API 批量测试工具已就绪');
-        });
-    </script>
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
+        <p>© 2024 GeoLite API - Powered by MaxMind GeoLite2 Database</p>
+    </footer>
 </body>
 </html>
