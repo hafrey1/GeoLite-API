@@ -6,7 +6,7 @@
     },
     {
       "source": "/test",
-      "destination": "/public/index.html"
+      "destination": "/public/test.html"
     }
   ],
   "headers": [
