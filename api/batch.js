@@ -54,7 +54,6 @@ module.exports = async (req, res) => {
       });
     }
     
-    const results = [];
     const startTime = Date.now();
     
     // 并发处理查询请求
@@ -118,9 +117,8 @@ module.exports = async (req, res) => {
       processing_time: endTime - startTime
     };
     
-    // 根据格式返回结果
+    // CSV格式处理
     if (format === 'csv') {
-      // CSV格式输出
       const csvHeader = 'Input,Type,IP,Country Code,Country Name,Continent Code,Continent Name,Status,Message\n';
       const csvRows = results_data.map(item => {
         const escapeCSV = (str) => {
@@ -146,20 +144,37 @@ module.exports = async (req, res) => {
       return res.send(csvHeader + csvRows);
     }
     
-    // 默认JSON格式
-    res.json({
+    const responseData = {
       success: true,
       data: results_data,
       stats: stats,
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    // 格式化JSON输出
+    if (format === 'pretty' || format === 'formatted') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      return res.send(JSON.stringify(responseData, null, 2));
+    }
+    
+    // 默认压缩输出
+    res.json(responseData);
     
   } catch (error) {
     console.error('批量查询错误:', error);
-    res.status(500).json({
+    const errorResponse = {
       success: false,
       error: '服务器内部错误',
       message: error.message
-    });
+    };
+    
+    const { format } = req.method === 'GET' ? req.query : req.body;
+    
+    if (format === 'pretty' || format === 'formatted') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      return res.status(500).send(JSON.stringify(errorResponse, null, 2));
+    }
+    
+    res.status(500).json(errorResponse);
   }
 };
