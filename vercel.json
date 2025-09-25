@@ -2,11 +2,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/test",
-      "destination": "/test.html"
+      "destination": "/batch.html"
     }
   ],
   "headers": [
