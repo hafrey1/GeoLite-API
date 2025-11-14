@@ -66,51 +66,67 @@
             z-index: 1;
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: 15px;
+        /* 4列并排布局 */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
             margin-bottom: 50px;
-            justify-content: center;
-            flex-wrap: wrap;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
         }
 
-        .nav-tab {
-            padding: 12px 28px;
-            background: none;
-            border: 2px solid transparent;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            color: #666;
-            border-radius: 8px;
+        .module {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
             transition: all 0.3s ease;
         }
 
-        .nav-tab:hover {
-            color: #667eea;
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
+        .module:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
         }
 
-        .nav-tab.active {
-            color: white;
+        .module-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: transparent;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .module-header h3 {
+            font-size: 1.3em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .module-content {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-tabs {
+            display: none;
+        }
+
+        .nav-tab {
+            display: none;
         }
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.5s ease;
         }
 
         .tab-content.active {
-            display: block;
+            display: none;
         }
 
         @keyframes fadeIn {
@@ -229,27 +245,38 @@
 
         /* 单个查询部分 */
         .query-section {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .query-section h2 {
+            display: none;
+        }
+
+        .query-section p {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 0.9em;
         }
 
         .query-input {
             display: flex;
+            flex-direction: column;
             gap: 12px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            align-items: center;
+            margin: 15px 0;
+            flex-wrap: nowrap;
+            align-items: stretch;
         }
 
         .query-input input {
             flex: 1;
-            min-width: 250px;
-            padding: 14px 18px;
+            min-width: 0;
+            padding: 12px 15px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 0.9em;
             transition: all 0.3s ease;
             background: #f9fafb;
         }
@@ -262,19 +289,22 @@
         }
 
         .query-result {
-            margin-top: 30px;
-            padding: 30px;
+            margin-top: 15px;
+            padding: 15px;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 12px;
-            border-left: 5px solid #667eea;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .result-item {
-            padding: 16px 0;
+            padding: 10px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.9em;
         }
 
         .result-item:last-child {
@@ -284,36 +314,52 @@
         .result-label {
             font-weight: 600;
             color: #2c3e50;
-            flex: 0 0 150px;
+            flex: 0 0 auto;
         }
 
         .result-value {
             font-family: 'Courier New', monospace;
             color: #2c3e50;
             background: white;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
             word-break: break-all;
             flex: 1;
             text-align: right;
+            margin-left: 10px;
+            font-size: 0.85em;
         }
 
         /* 批量查询部分 */
         .batch-section {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .batch-section h2 {
+            display: none;
+        }
+
+        .batch-section h3 {
+            display: none;
+        }
+
+        .batch-section > p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 0.9em;
         }
 
         textarea {
             width: 100%;
-            min-height: 220px;
-            padding: 18px;
+            min-height: 120px;
+            padding: 12px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 14px;
+            font-size: 12px;
             resize: vertical;
             box-sizing: border-box;
             background: #f9fafb;
@@ -330,56 +376,71 @@
 
         .controls {
             display: flex;
-            gap: 12px;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            margin: 15px 0;
+            flex-wrap: nowrap;
+        }
+
+        .controls .btn {
+            padding: 10px 15px;
+            font-size: 0.9em;
+            width: 100%;
+        }
+
+        .controls label {
+            font-size: 0.9em;
+            display: flex;
             align-items: center;
-            margin: 25px 0;
-            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .results {
-            margin-top: 40px;
+            margin-top: 15px;
+        }
+
+        .results h3 {
+            display: none;
         }
 
         .stats {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 10px;
             color: white;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            font-size: 0.85em;
         }
 
         .stat-item {
             text-align: center;
-            flex: 1;
-            min-width: 120px;
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: 1.5em;
             font-weight: bold;
             color: #fff;
-            margin-bottom: 5px;
         }
 
         .stat-label {
-            font-size: 0.9em;
+            font-size: 0.8em;
             opacity: 0.9;
         }
 
         .results-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 11px;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
 
         .results-table thead {
@@ -388,21 +449,128 @@
         }
 
         .results-table th {
-            padding: 16px 12px;
+            padding: 10px 6px;
             text-align: left;
             font-weight: 600;
             border-bottom: none;
         }
 
         .results-table td {
-            padding: 14px 12px;
+            padding: 8px 6px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
             color: #2c3e50;
+            word-break: break-word;
+            font-size: 10px;
         }
 
         .results-table tbody tr:hover {
             background: #f5f7fa;
+        }
+
+        /* API 文档部分 */
+        .api-section {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        .api-section h2 {
+            display: none;
+        }
+
+        .api-section h3 {
+            font-size: 0.95em;
+            color: #667eea;
+            margin: 12px 0 8px 0;
+            font-weight: 700;
+        }
+
+        .api-section h4 {
+            font-size: 0.85em;
+            color: #2c3e50;
+            margin: 8px 0 5px 0;
+        }
+
+        .endpoint {
+            background: #f5f7fa;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 8px 0;
+            border-left: 3px solid #667eea;
+            color: #2c3e50;
+            overflow-x: auto;
+            font-size: 0.8em;
+            word-break: break-all;
+        }
+
+        .example {
+            background: #f9fafb;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        .example:hover {
+            border-color: #667eea;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.1);
+        }
+
+        .example pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 11px;
+            line-height: 1.4;
+            margin: 5px 0 0 0;
+        }
+
+        .api-section ul {
+            list-style: none;
+            padding: 0;
+            font-size: 0.85em;
+            color: #2c3e50;
+        }
+
+        .api-section li {
+            padding: 5px 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .api-section li::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .api-section code {
+            background: #f5f7fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1400px) {
+            .modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
         }
         .status-success {
             color: #27ae60;
@@ -470,54 +638,65 @@
 
         /* 网络信息检测部分 */
         .network-info-section {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .network-info-section h2 {
+            display: none;
+        }
+
+        .network-info-section > p {
+            display: none;
+        }
+
+        .network-info-section .description {
+            display: none;
         }
 
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .info-card {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 12px;
-            padding: 25px;
-            border-left: 5px solid #667eea;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid #667eea;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
         }
 
         .info-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
-            border-left-color: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
         }
 
         .card-title {
             display: flex;
             align-items: center;
-            font-size: 1.15em;
+            font-size: 0.9em;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             color: #2c3e50;
         }
 
         .card-icon {
-            font-size: 1.8em;
-            margin-right: 12px;
+            font-size: 1.2em;
+            margin-right: 8px;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
             align-items: center;
+            font-size: 0.8em;
         }
 
         .info-row:last-child {
@@ -527,7 +706,6 @@
         .info-label {
             font-weight: 600;
             color: #555;
-            font-size: 0.9em;
         }
 
         .info-value {
@@ -536,9 +714,10 @@
             word-break: break-all;
             font-family: 'Courier New', monospace;
             background: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.95em;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin-left: 8px;
         }
 
         .description {
@@ -604,23 +783,25 @@
                 font-size: 1em;
             }
 
-            .nav-tabs {
-                flex-direction: column;
-                gap: 10px;
+            .modules-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
 
-            .nav-tab {
-                width: 100%;
-                text-align: center;
-                border: 2px solid #e9ecef;
+            .module-header {
+                padding: 15px;
             }
 
-            .nav-tab.active {
-                border: 2px solid transparent;
+            .module-header h3 {
+                font-size: 1.1em;
+            }
+
+            .module-content {
+                padding: 20px;
             }
 
             .query-section, .batch-section, .network-info-section {
-                padding: 25px;
+                padding: 0;
             }
 
             .query-input {
@@ -632,7 +813,8 @@
             }
 
             .result-label {
-                flex: 0 0 100px;
+                flex: 0 0 auto;
+                min-width: 60px;
             }
 
             .result-item {
@@ -641,14 +823,14 @@
             }
 
             .result-value {
-                margin-top: 8px;
+                margin-top: 6px;
                 width: 100%;
                 text-align: left;
             }
 
             .stats {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
             }
 
             .info-grid {
@@ -667,6 +849,20 @@
             .github-corner svg {
                 width: 60px;
                 height: 60px;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 6px 4px;
+                font-size: 10px;
+            }
+
+            .endpoint {
+                font-size: 0.75em;
+            }
+
+            .example pre {
+                font-size: 9px;
             }
         }
     </style>
@@ -703,25 +899,70 @@
             </ul>
         </div>
 
-        <!-- 标签页导航 -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('api-doc')">📚 API文档</button>
-            <button class="nav-tab" onclick="switchTab('single-query')">🔍 单个查询</button>
-            <button class="nav-tab" onclick="switchTab('batch-query')">🧪 批量查询</button>
-            <button class="nav-tab" onclick="switchTab('network-info')">🌐 网络检测</button>
-        </div>
+        <!-- 4列并排模块布局 -->
+        <div class="modules-grid">
+            <!-- 网络检测模块 -->
+            <div class="module">
+                <div class="module-header">
+                    <h3>🌐 网络检测<br><span style="font-size: 0.8em;">(自动检测)</span></h3>
+                </div>
+                <div class="module-content">
+                    <div class="network-info-section">
+                        <button class="btn" onclick="detectNetworkInfo()" style="width: 100%; margin-bottom: 12px;">🔄 刷新</button>
+                        <div id="networkContent"></div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- 标签页导航 -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('api-doc')">📚 API文档</button>
-            <button class="nav-tab" onclick="switchTab('single-query')">🔍 单个查询</button>
-            <button class="nav-tab" onclick="switchTab('batch-query')">🧪 批量查询</button>
-            <button class="nav-tab" onclick="switchTab('network-info')">🌐 网络检测</button>
-        </div>
+            <!-- 单个查询模块 -->
+            <div class="module">
+                <div class="module-header">
+                    <h3>🔍 单个查询</h3>
+                </div>
+                <div class="module-content">
+                    <div class="query-section">
+                        <p>输入一个IP地址或域名进行查询</p>
+                        <div class="query-input">
+                            <input type="text" id="singleInput" placeholder="IP或域名">
+                            <button class="btn" onclick="querySingle()" style="width: 100%;">查询</button>
+                        </div>
+                        <div id="singleResult"></div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- API文档标签页 -->
-        <div id="api-doc" class="tab-content active">
-            <div class="api-section">
+            <!-- 批量查询模块 -->
+            <div class="module">
+                <div class="module-header">
+                    <h3>🧪 批量查询</h3>
+                </div>
+                <div class="module-content">
+                    <div class="batch-section">
+                        <p>批量查询多个IP或域名</p>
+                        <textarea id="batchInput" placeholder="每行一个IP/域名"></textarea>
+
+                        <div class="controls">
+                            <button class="btn" onclick="startBatchQuery()" id="queryBtn">开始查询</button>
+                            <label style="margin: 0;">
+                                <input type="checkbox" id="exportCsv"> 导出CSV
+                            </label>
+                        </div>
+
+                        <div class="results" id="batchResults" style="display: none;">
+                            <div class="stats" id="stats"></div>
+                            <div id="resultsContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API文档模块 -->
+            <div class="module">
+                <div class="module-header">
+                    <h3>📚 API文档</h3>
+                </div>
+                <div class="module-content">
+                    <div class="api-section">
                 <h2>📡 API接口</h2>
                 <h3>1. 单个查询接口</h3>
                 <div class="endpoint">GET /api/query?input={IP或域名}</div>
@@ -776,73 +1017,8 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
                     <li><code>continent_name</code>: 洲名称</li>
                     <li><code>status</code>: 查询状态（success/error/not_found）</li>
                 </ul>
-            </div>
-        </div>
-
-        <!-- 单个查询标签页 -->
-        <div id="single-query" class="tab-content">
-            <div class="query-section">
-                <h2>🔍 单个查询</h2>
-                <p>输入一个IP地址或域名进行查询</p>
-                <div class="query-input">
-                    <input type="text" id="singleInput" placeholder="请输入IP地址或域名，如：8.8.8.8 或 google.com">
-                    <button class="btn" onclick="querySingle()">查询</button>
+                    </div>
                 </div>
-                <div id="singleResult"></div>
-            </div>
-        </div>
-
-        <!-- 批量查询标签页 -->
-        <div id="batch-query" class="tab-content">
-            <div class="batch-section">
-                <h2>🧪 批量查询</h2>
-                <p>批量查询多个IP地址和域名的地理位置信息</p>
-                <h3>📝 输入IP地址和域名（每行一个）：</h3>
-                <textarea id="batchInput" placeholder="请输入IP地址或域名，每行一个，例如：
-8.8.8.8
-google.com
-github.com
-baidu.com
-114.114.114.114"></textarea>
-
-                <div class="controls">
-                    <button class="btn" onclick="startBatchQuery()" id="queryBtn">🚀 开始批量查询</button>
-                    <button class="btn" style="background: #6c757d;" onclick="loadSampleData()">📄 加载示例数据</button>
-                    <button class="btn" style="background: #6c757d;" onclick="clearBatchResults()">🗑️ 清空</button>
-                    <label style="margin: 0 10px;">
-                        <input type="checkbox" id="exportCsv"> 导出CSV格式
-                    </label>
-                </div>
-                <div class="progress-bar" id="progressBar" style="display: none;">
-                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
-                </div>
-
-                <div class="results" id="batchResults" style="display: none;">
-                    <h3>📊 查询结果</h3>
-                    <div class="stats" id="stats"></div>
-                    <div id="resultsContent"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 网络信息检测标签页 -->
-        <div id="network-info" class="tab-content">
-            <div class="network-info-section">
-                <h2>🌐 网络信息检测</h2>
-                <p>检测您的当前网络配置和 IP 地址信息</p>
-
-                <div class="description">
-                    <p>
-                        <strong>💡 说明：</strong>
-                        国内测试是由您梯子的 <strong>分流规则</strong> 决定的，
-                        国外测试是由您的 <strong>优选 IP</strong> 决定的，
-                        而 CloudFlare 和 Twitter 是由您的 <strong>PROXYIP</strong> 决定的。
-                    </p>
-                </div>
-
-                <button class="btn" onclick="detectNetworkInfo()">🔄 开始检测</button>
-
-                <div id="networkContent"></div>
             </div>
         </div>
 
@@ -867,20 +1043,6 @@ baidu.com
 
     <script>
         // 切换标签页
-        function switchTab(tabName) {
-            // 隐藏所有标签内容
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
-            
-            // 移除所有标签的激活状态
-            const tabs = document.querySelectorAll('.nav-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // 显示选中标签
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-        }
-
         // ===== 单个查询功能 =====
         async function querySingle() {
             const input = document.getElementById('singleInput').value.trim();
@@ -1243,6 +1405,11 @@ twitter.com
 
             content.innerHTML = html;
         }
+
+        // 页面加载时自动检测网络信息
+        window.addEventListener('load', function() {
+            detectNetworkInfo();
+        });
     </script>
 </body>
 </html>
