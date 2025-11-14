@@ -134,10 +134,67 @@ async function handleNetworkInfo(req, res) {
   const results = { success: true, data: { domestic: null, foreign: null, cloudflare: null, twitter: null, client_ip: req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown' }, timestamp: new Date().toISOString() };
 
   const testPoints = [
-    { key: 'domestic', name: '国内测试', urls: ['http://myip.ipip.net/json','https://api.ip.sb/json','https://ipapi.co/json'] },
-    { key: 'foreign', name: '国外测试', urls: ['http://ipv4.icanhazip.com/','https://api.ipify.org?format=json','https://ip.seeip.org/json'] },
-    { key: 'cloudflare', name: 'CloudFlare ProxyIP', urls: ['https://one.one.one.one/doh','https://www.cloudflare.com/cdn-cgi/trace'] },
-    { key: 'twitter', name: 'Twitter/X', urls: ['https://api.twitter.com/i/api/2/timeline/home.json'] }
+    { 
+      key: 'domestic', 
+      name: '国内测试',
+      description: '访问国内网站检测 IP',
+      urls: [
+        'https://www.baidu.com/ping.html',
+        'https://www.163.com/special/00097E81/check_xiaomi.htm',
+        'https://api.bilibili.com/x/web-interface/nav',
+        'https://www.qq.com/',
+        'https://www.taobao.com/'
+      ],
+      headers: {
+        'Referer': 'https://www.baidu.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    },
+    { 
+      key: 'foreign', 
+      name: '国外测试',
+      description: '访问国外网站检测 IP',
+      urls: [
+        'https://www.google.com/search?q=test',
+        'https://www.facebook.com/',
+        'https://www.youtube.com/',
+        'https://www.github.com/',
+        'https://ipv4.icanhazip.com/',
+        'https://api.ipify.org?format=json'
+      ],
+      headers: {
+        'Referer': 'https://www.google.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    },
+    { 
+      key: 'cloudflare', 
+      name: 'CloudFlare ProxyIP',
+      description: 'CloudFlare CDN IP',
+      urls: [
+        'https://www.cloudflare.com/cdn-cgi/trace',
+        'https://one.one.one.one/doh',
+        'https://example.com/'
+      ],
+      headers: {
+        'Host': 'www.cloudflare.com',
+        'Accept': '*/*'
+      }
+    },
+    { 
+      key: 'twitter', 
+      name: 'Twitter/X',
+      description: 'Twitter 服务 IP',
+      urls: [
+        'https://x.com/',
+        'https://twitter.com/',
+        'https://api.twitter.com/1.1/account/verify_credentials.json'
+      ],
+      headers: {
+        'Referer': 'https://x.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    }
   ];
 
   const promises = testPoints.map(point => detectIP(point));
