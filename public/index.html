@@ -610,6 +610,272 @@
             to { transform: rotate(360deg); }
         }
 
+        /* IP 详情模态框样式 */
+        .ip-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .ip-detail-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .ip-detail-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .ip-detail-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .ip-detail-title {
+            padding: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ip-detail-source {
+            font-size: 12px;
+            color: #999;
+            font-weight: normal;
+        }
+
+        .ip-detail-section {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ip-detail-section:last-child {
+            border-bottom: none;
+        }
+
+        .ip-detail-section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .ip-detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+        }
+
+        .ip-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .ip-detail-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 100px;
+        }
+
+        .ip-detail-value {
+            flex: 1;
+            text-align: right;
+            color: #2c3e50;
+            word-break: break-word;
+        }
+
+        .ip-detail-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-high { background: #f8d7da; color: #721c24; }
+        .badge-elevated { background: #fff3cd; color: #856404; }
+        .badge-low { background: #d1ecf1; color: #0c5460; }
+        .badge-verylow { background: #d4edda; color: #155724; }
+        .badge-critical { background: #8B0000; color: white; }
+
+        .score-help-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .score-help-icon:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .score-tooltip {
+            display: none;
+            position: fixed;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            z-index: 10001;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .score-tooltip.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .tooltip-header {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .tooltip-section {
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .tooltip-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .tooltip-section-title {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .formula-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 11px;
+        }
+
+        .formula-name {
+            min-width: 60px;
+            color: #666;
+        }
+
+        .formula-equation code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+        }
+
+        .risk-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .risk-list li {
+            padding: 4px 0;
+            color: #666;
+            font-size: 11px;
+        }
+
+        .risk-list li::before {
+            content: '• ';
+            color: #667eea;
+            margin-right: 4px;
+        }
+
+        .success-text { color: #28a745; }
+        .warning-text { color: #ffc107; }
+        .danger-text { color: #dc3545; }
+
+        .ip-type-residential { color: #28a745; background: #d4edda; padding: 2px 6px; border-radius: 3px; }
+        .ip-type-hosting { color: #ffc107; background: #fff3cd; padding: 2px 6px; border-radius: 3px; }
+        .ip-type-business { color: #17a2b8; background: #d1ecf1; padding: 2px 6px; border-radius: 3px; }
+        .ip-type-unknown { color: #999; }
+
+        /* Toast 通知样式 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
         .error {
             background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
             color: #721c24;
@@ -1070,6 +1336,210 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
             }
         }
 
+        // ==================== 网络信息相关函数 ====================
+
+        // 设置状态指示器
+        function setStatus(id, status) {
+            const indicator = document.getElementById(id);
+            if (indicator) {
+                indicator.className = 'status-indicator status-' + status;
+            }
+        }
+
+        // 显示 toast 通知
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 将布尔值转换为 emoji
+        function boolToEmoji(value, trueEmoji = '✅', falseEmoji = '❌') {
+            return value ? trueEmoji : falseEmoji;
+        }
+
+        // 将 IP 类型转换为中文并添加样式
+        function formatIpType(type) {
+            if (!type) return '<span class="ip-type-unknown">未知</span>';
+            const typeMap = {
+                'isp': { text: '住宅', class: 'ip-type-residential' },
+                'hosting': { text: '机房', class: 'ip-type-hosting' },
+                'business': { text: '商用', class: 'ip-type-business' }
+            };
+            const typeInfo = typeMap[type.toLowerCase()] || { text: type, class: 'ip-type-unknown' };
+            return `<span class="${typeInfo.class}">${typeInfo.text}</span>`;
+        }
+
+        // 获取威胁等级的样式类
+        function getThreatBadgeClass(score) {
+            if (!score) return 'badge-info';
+            const numScore = parseFloat(score);
+            if (numScore < 0.001) return 'badge-success';
+            if (numScore < 0.01) return 'badge-info';
+            if (numScore < 0.1) return 'badge-warning';
+            return 'badge-danger';
+        }
+
+        // 计算综合滥用评分
+        function calculateAbuseScore(companyScore, asnScore, securityFlags = {}) {
+            if (!companyScore || companyScore === '未知') companyScore = 0;
+            if (!asnScore || asnScore === '未知') asnScore = 0;
+            const company = parseFloat(companyScore) || 0;
+            const asn = parseFloat(asnScore) || 0;
+            let baseScore = ((company + asn) / 2) * 5;
+            let riskAddition = 0;
+            const riskFlags = [
+                securityFlags.is_crawler,
+                securityFlags.is_proxy,
+                securityFlags.is_vpn,
+                securityFlags.is_tor,
+                securityFlags.is_abuser,
+                securityFlags.is_bogon
+            ];
+            const riskCount = riskFlags.filter(flag => flag === true).length;
+            riskAddition = riskCount * 0.15;
+            const finalScore = baseScore + riskAddition;
+            if (baseScore === 0 && riskAddition === 0) return null;
+            return finalScore;
+        }
+
+        // 获取滥用评分的颜色等级
+        function getAbuseScoreBadgeClass(percentage) {
+            if (percentage === null || percentage === undefined) return 'badge-info';
+            if (percentage >= 100) return 'badge-critical';
+            if (percentage >= 20) return 'badge-high';
+            if (percentage >= 5) return 'badge-elevated';
+            if (percentage >= 0.25) return 'badge-low';
+            return 'badge-verylow';
+        }
+
+        // 格式化滥用评分为百分比
+        function formatAbuseScorePercentage(score) {
+            if (score === null || score === undefined) return '未知';
+            const percentage = score * 100;
+            return percentage.toFixed(2) + '%';
+        }
+
+        // 切换评分算法说明气泡
+        function toggleScoreTooltip(helpIcon) {
+            const tooltip = helpIcon.nextElementSibling;
+            const isShowing = tooltip.classList.contains('show');
+            document.querySelectorAll('.score-tooltip.show').forEach(t => {
+                if (t !== tooltip) t.classList.remove('show');
+            });
+            tooltip.classList.toggle('show');
+            if (!isShowing) {
+                setTimeout(() => {
+                    positionTooltipNearMouse(tooltip, helpIcon);
+                    const closeTooltip = (e) => {
+                        if (!tooltip.contains(e.target) && !helpIcon.contains(e.target)) {
+                            tooltip.classList.remove('show');
+                            document.removeEventListener('click', closeTooltip);
+                        }
+                    };
+                    document.addEventListener('click', closeTooltip);
+                }, 100);
+            }
+        }
+
+        // 将气泡位置设置在鼠标附近
+        function positionTooltipNearMouse(tooltip, helpIcon) {
+            const iconRect = helpIcon.getBoundingClientRect();
+            const tooltipWidth = tooltip.offsetWidth;
+            const tooltipHeight = tooltip.offsetHeight;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const padding = 10;
+            let left = iconRect.right + padding;
+            let top = iconRect.top - tooltipHeight / 2;
+            if (left + tooltipWidth > windowWidth - padding) {
+                left = iconRect.left - tooltipWidth - padding;
+            }
+            if (top < padding) {
+                top = iconRect.top + padding;
+            }
+            if (top + tooltipHeight > windowHeight - padding) {
+                top = windowHeight - tooltipHeight - padding;
+            }
+            tooltip.style.position = 'fixed';
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        // 显示 IP 详情弹窗
+        function showIpDetailModal(data) {
+            const modal = document.createElement('div');
+            modal.className = 'ip-detail-modal';
+            const companyScore = data.company?.abuser_score;
+            const asnScore = data.asn?.abuser_score;
+            const securityFlags = {
+                is_crawler: data.is_crawler,
+                is_proxy: data.is_proxy,
+                is_vpn: data.is_vpn,
+                is_tor: data.is_tor,
+                is_abuser: data.is_abuser,
+                is_bogon: data.is_bogon
+            };
+            const combinedScore = calculateAbuseScore(companyScore, asnScore, securityFlags);
+            let riskControlHTML = '';
+            if (combinedScore !== null) {
+                const scorePercentage = combinedScore * 100;
+                const badgeClass = getAbuseScoreBadgeClass(scorePercentage);
+                const formattedScore = formatAbuseScorePercentage(combinedScore);
+                let riskLevel = '';
+                if (scorePercentage >= 100) riskLevel = '极度危险';
+                else if (scorePercentage >= 20) riskLevel = '高风险';
+                else if (scorePercentage >= 5) riskLevel = '轻微风险';
+                else if (scorePercentage >= 0.25) riskLevel = '纯净';
+                else riskLevel = '极度纯净';
+                riskControlHTML = `<span class="ip-detail-badge ${badgeClass}">${formattedScore} ${riskLevel}</span>`;
+            } else {
+                riskControlHTML = '未知';
+            }
+            let detailHTML = `<div class="ip-detail-content"><button class="ip-detail-close" onclick="this.closest('.ip-detail-modal').remove()">×</button><div class="ip-detail-title">🔍 IP 详细信息<span class="ip-detail-source">数据来源: ipapi.cmliussss.net</span></div>`;
+            detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">📍 基本信息</div><div class="ip-detail-item"><span class="ip-detail-label">IP 地址</span><span class="ip-detail-value">${data.ip || '未知'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">区域互联网注册机构</span><span class="ip-detail-value">${data.rir || '未知'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">运营商 / ASN 类型</span><span class="ip-detail-value">${formatIpType(data.company?.type)} / ${formatIpType(data.asn?.type)}</span></div><div class="ip-detail-item"><span class="ip-detail-label">综合滥用评分<span class="score-help-icon" onclick="event.stopPropagation(); toggleScoreTooltip(this);" title="点击查看算法说明">?</span><span class="score-tooltip"><div class="tooltip-header"><span class="tooltip-title">📊 综合滥用评分算法</span></div><div class="tooltip-section"><p class="tooltip-section-title">评分公式</p><div class="formula-item"><span class="formula-name">基础分</span><span class="formula-equation"><code>(运营商分 + ASN分) / 2 * 5</code></span></div><div class="formula-item"><span class="formula-name">风险附加</span><span class="formula-equation"><code>风险项数量 * 15%</code></span></div></div><div class="tooltip-section"><p class="tooltip-section-title">安全风险项</p><ul class="risk-list"><li>爬虫 (Crawler)</li><li>代理 (Proxy)</li><li>VPN</li><li>Tor 网络</li><li>滥用IP (Abuser)</li><li>虚假IP (Bogon)</li></ul></div></span></span><span class="ip-detail-value">${riskControlHTML}</span></div></div>`;
+            detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">🛡️ 安全检测</div><div class="ip-detail-item"><span class="ip-detail-label">移动网络</span><span class="ip-detail-value">${data.is_mobile ? '<span class="success-text">📱 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">数据中心</span><span class="ip-detail-value">${data.is_datacenter ? '<span class="warning-text">🏢 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">卫星网络</span><span class="ip-detail-value">${data.is_satellite ? '<span class="success-text">🛰️ 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">爬虫</span><span class="ip-detail-value">${data.is_crawler ? '<span class="danger-text">🤖 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">代理服务器</span><span class="ip-detail-value">${data.is_proxy ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">VPN</span><span class="ip-detail-value">${data.is_vpn ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">Tor 网络</span><span class="ip-detail-value">${data.is_tor ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">滥用 IP</span><span class="ip-detail-value">${data.is_abuser ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">虚假 IP</span><span class="ip-detail-value">${data.is_bogon ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div></div>`;
+            if (data.location) {
+                detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">🌍 位置信息</div><div class="ip-detail-item"><span class="ip-detail-label">国家</span><span class="ip-detail-value">${data.location.country || '未知'} (${data.location.country_code || '-'})</span></div>${data.location.state ? `<div class="ip-detail-item"><span class="ip-detail-label">省份/州</span><span class="ip-detail-value">${data.location.state}</span></div>` : ''}${data.location.city ? `<div class="ip-detail-item"><span class="ip-detail-label">城市</span><span class="ip-detail-value">${data.location.city}</span></div>` : ''}${data.location.zip ? `<div class="ip-detail-item"><span class="ip-detail-label">邮编</span><span class="ip-detail-value">${data.location.zip}</span></div>` : ''}${data.location.latitude && data.location.longitude ? `<div class="ip-detail-item"><span class="ip-detail-label">坐标</span><span class="ip-detail-value">${data.location.latitude}, ${data.location.longitude}</span></div>` : ''}${data.location.timezone ? `<div class="ip-detail-item"><span class="ip-detail-label">时区</span><span class="ip-detail-value">${data.location.timezone}</span></div>` : ''}${data.location.local_time ? `<div class="ip-detail-item"><span class="ip-detail-label">当地时间</span><span class="ip-detail-value">${data.location.local_time}</span></div>` : ''}<div class="ip-detail-item"><span class="ip-detail-label">欧盟成员</span><span class="ip-detail-value">${boolToEmoji(data.location.is_eu_member, '🇪🇺 是', '否')}</span></div></div>`;
+            }
+            if (data.company) {
+                const abuserScore = data.company.abuser_score || '未知';
+                const badgeClass = getThreatBadgeClass(abuserScore);
+                detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">🏢 运营商信息</div><div class="ip-detail-item"><span class="ip-detail-label">运营商名称</span><span class="ip-detail-value">${data.company.name || '未知'}</span></div>${data.company.domain ? `<div class="ip-detail-item"><span class="ip-detail-label">域名</span><span class="ip-detail-value">${data.company.domain}</span></div>` : ''}<div class="ip-detail-item"><span class="ip-detail-label">类型</span><span class="ip-detail-value">${data.company.type || '未知'}</span></div>${data.company.network ? `<div class="ip-detail-item"><span class="ip-detail-label">网络范围</span><span class="ip-detail-value">${data.company.network}</span></div>` : ''}<div class="ip-detail-item"><span class="ip-detail-label">滥用评分</span><span class="ip-detail-value"><span class="ip-detail-badge ${badgeClass}">${abuserScore}</span></span></div></div>`;
+            }
+            if (data.asn) {
+                const asnAbuserScore = data.asn.abuser_score || '未知';
+                const asnBadgeClass = getThreatBadgeClass(asnAbuserScore);
+                detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">🔢 ASN 信息</div><div class="ip-detail-item"><span class="ip-detail-label">ASN 编号</span><span class="ip-detail-value">AS${data.asn.asn || '未知'}</span></div>${data.asn.org ? `<div class="ip-detail-item"><span class="ip-detail-label">组织</span><span class="ip-detail-value">${data.asn.org}</span></div>` : ''}${data.asn.route ? `<div class="ip-detail-item"><span class="ip-detail-label">路由</span><span class="ip-detail-value">${data.asn.route}</span></div>` : ''}${data.asn.type ? `<div class="ip-detail-item"><span class="ip-detail-label">类型</span><span class="ip-detail-value">${data.asn.type}</span></div>` : ''}<div class="ip-detail-item"><span class="ip-detail-label">滥用评分</span><span class="ip-detail-value"><span class="ip-detail-badge ${asnBadgeClass}">${asnAbuserScore}</span></span></div>${data.asn.country ? `<div class="ip-detail-item"><span class="ip-detail-label">国家代码</span><span class="ip-detail-value">${data.asn.country.toUpperCase()}</span></div>` : ''}</div>`;
+            }
+            if (data.abuse) {
+                detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">📧 滥用举报联系方式</div>${data.abuse.name ? `<div class="ip-detail-item"><span class="ip-detail-label">联系人</span><span class="ip-detail-value">${data.abuse.name}</span></div>` : ''}${data.abuse.email ? `<div class="ip-detail-item"><span class="ip-detail-label">邮箱</span><span class="ip-detail-value">${data.abuse.email}</span></div>` : ''}${data.abuse.phone ? `<div class="ip-detail-item"><span class="ip-detail-label">电话</span><span class="ip-detail-value">${data.abuse.phone}</span></div>` : ''}${data.abuse.address ? `<div class="ip-detail-item"><span class="ip-detail-label">地址</span><span class="ip-detail-value">${data.abuse.address}</span></div>` : ''}</div>`;
+            }
+            detailHTML += `</div>`;
+            modal.innerHTML = detailHTML;
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            const closeHandler = function (e) {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', closeHandler);
+                }
+            };
+            document.addEventListener('keydown', closeHandler);
+            document.body.appendChild(modal);
+        }
+
         // ===== 批量查询功能 =====
         let currentResults = null;
 
@@ -1431,6 +1901,7 @@ apple.com
         // 页面加载时自动检测网络信息
         window.addEventListener('load', function() {
             detectNetworkInfo();
+            loadSampleData();
         });
     </script>
 </body>
