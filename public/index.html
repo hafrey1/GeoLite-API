@@ -1074,8 +1074,7 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
         let currentResults = null;
 
         function loadSampleData() {
-            const sampleData = `8.8.8.8
-google.com
+            const sampleData = `google.com
 cloudflare.com
 baidu.com
 114.114.114.114
@@ -1083,7 +1082,37 @@ github.com
 youtube.com
 facebook.com
 twitter.com
-208.67.222.222`;
+208.67.222.222
+amazon.com
+microsoft.com
+apple.com
+35.221.254.236
+35.220.133.61
+34.146.177.122
+35.200.143.183
+34.87.56.130
+34.101.103.120
+35.197.161.138
+34.116.167.55
+35.228.114.153
+34.51.134.45
+34.51.138.174
+34.175.139.26
+35.205.33.30
+35.187.27.174
+34.89.121.226
+35.197.249.117
+35.204.79.99
+34.154.228.146
+35.203.42.193
+35.203.18.247
+34.130.100.152
+34.51.23.163
+34.51.22.207
+35.199.77.203
+35.198.52.22
+34.176.217.158
+34.72.28.29`;
             document.getElementById('batchInput').value = sampleData;
         }
 
