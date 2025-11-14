@@ -1300,6 +1300,9 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
                 
                 const data = await response.json();
                 if (data.success && data.data.status === 'success') {
+                    const ip = data.data.ip || data.data.resolved_ip;
+                    const ipDisplay = ip ? `<span class="ip-link" onclick="queryNetworkIpDetail('${ip}')" style="cursor: pointer; text-decoration: underline; color: #667eea;" title="点击查询IP详情">${ip}</span>` : ip;
+                    
                     resultDiv.innerHTML = `
                         <div class="query-result">
                             <div class="result-item">
@@ -1312,7 +1315,7 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
                             </div>
                             <div class="result-item">
                                 <span class="result-label">IP 地址：</span>
-                                <span class="result-value">${data.data.ip || data.data.resolved_ip}</span>
+                                <span class="result-value">${ipDisplay}</span>
                             </div>
                             <div class="result-item">
                                 <span class="result-label">国家：</span>
@@ -1359,6 +1362,180 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // 获取国内测试数据 (遍历多个 API: speedtest.cn > ipipv.com > ipip.net)
+        async function fetchDomesticData() {
+            setStatus('status-domestic', 'loading');
+
+            const apiConfigs = [
+                {
+                    name: 'speedtest.cn',
+                    url: 'https://api-v3.speedtest.cn/ip',
+                    parser: (data) => {
+                        if (data.code === 0 && data.data) {
+                            return {
+                                ip: data.data.ip || '未知',
+                                country: data.data.country || '未知',
+                                city: data.data.city || '未知'
+                            };
+                        }
+                        throw new Error('数据格式错误');
+                    }
+                },
+                {
+                    name: 'ipipv.com',
+                    url: 'https://myip.ipipv.com/',
+                    parser: (data) => {
+                        return {
+                            ip: data.Ip || '未知',
+                            country: data.Country || '未知',
+                            city: data.City || '未知'
+                        };
+                    }
+                },
+                {
+                    name: 'ipip.net',
+                    url: 'https://myip.ipip.net/json',
+                    parser: (data) => {
+                        if (data.ret === 'ok' && data.data) {
+                            return {
+                                ip: data.data.ip || '未知',
+                                country: data.data.location[0] || '未知',
+                                city: data.data.location[2] || '未知'
+                            };
+                        }
+                        throw new Error('数据格式错误');
+                    }
+                }
+            ];
+
+            for (const config of apiConfigs) {
+                try {
+                    const timestamp = Date.now();
+                    const url = config.url + (config.url.includes('?') ? '&' : '?') + `_t=${timestamp}`;
+                    const response = await fetch(url, { mode: 'cors' });
+                    const data = await response.json();
+                    const result = config.parser(data);
+                    setStatus('status-domestic', 'success');
+                    console.log(`使用 ${config.name} API 成功获取国内测试数据`);
+                    return { ip: result.ip, country: result.country, city: result.city, source: config.name };
+                } catch (error) {
+                    console.warn(`${config.name} 接口失败:`, error);
+                }
+            }
+
+            setStatus('status-domestic', 'error');
+            console.error('所有国内测试 API 都失败');
+            return { ip: '未知', country: '未知', city: '未知', source: '失败' };
+        }
+
+        // 获取国外测试数据
+        async function fetchForeignData() {
+            setStatus('status-foreign', 'loading');
+
+            const apiConfigs = [
+                {
+                    name: 'ipv4.icanhazip.com',
+                    url: 'https://ipv4.icanhazip.com/',
+                    parser: (data) => {
+                        return { ip: data.trim() || '未知' };
+                    }
+                },
+                {
+                    name: 'api.ipify.org',
+                    url: 'https://api.ipify.org?format=json',
+                    parser: (data) => {
+                        return { ip: data.ip || '未知' };
+                    }
+                },
+                {
+                    name: 'ifconfig.me',
+                    url: 'https://ifconfig.me/',
+                    parser: (data) => {
+                        return { ip: data.trim() || '未知' };
+                    }
+                }
+            ];
+
+            for (const config of apiConfigs) {
+                try {
+                    const timestamp = Date.now();
+                    const url = config.url + (config.url.includes('?') ? '&' : '?') + `_t=${timestamp}`;
+                    let response = await fetch(url, { mode: 'cors' });
+                    let data;
+                    
+                    if (config.name === 'ipv4.icanhazip.com' || config.name === 'ifconfig.me') {
+                        data = await response.text();
+                    } else {
+                        data = await response.json();
+                    }
+                    
+                    const result = config.parser(data);
+                    setStatus('status-foreign', 'success');
+                    console.log(`使用 ${config.name} API 成功获取国外测试数据`);
+                    return { ip: result.ip, source: config.name };
+                } catch (error) {
+                    console.warn(`${config.name} 接口失败:`, error);
+                }
+            }
+
+            setStatus('status-foreign', 'error');
+            console.error('所有国外测试 API 都失败');
+            return { ip: '未知', source: '失败' };
+        }
+
+        // 获取 CloudFlare 数据
+        async function fetchCloudFlareData() {
+            setStatus('status-cloudflare', 'loading');
+            try {
+                const timestamp = Date.now();
+                const response = await fetch(`https://cf.090227.xyz/ip.json?_t=${timestamp}`, { mode: 'cors' });
+                const data = await response.json();
+                setStatus('status-cloudflare', 'success');
+                console.log('成功获取 CloudFlare 数据');
+                return { 
+                    ip: data.ip || '未知', 
+                    country: data.country || '未知', 
+                    org: data.org || '未知',
+                    source: 'cf.090227.xyz'
+                };
+            } catch (error) {
+                console.error('CloudFlare 接口错误:', error);
+                setStatus('status-cloudflare', 'error');
+                return { ip: '未知', country: '未知', org: '未知', source: '失败' };
+            }
+        }
+
+        // 获取推特入口数据
+        async function fetchTwitterData() {
+            setStatus('status-twitter', 'loading');
+            try {
+                const timestamp = Date.now();
+                const response = await fetch(`https://x.com/cdn-cgi/trace?_t=${timestamp}`, { mode: 'cors' });
+                const text = await response.text();
+
+                const data = {};
+                text.split('\n').forEach(line => {
+                    const [key, value] = line.split('=');
+                    if (key && value) {
+                        data[key.trim()] = value.trim();
+                    }
+                });
+
+                setStatus('status-twitter', 'success');
+                console.log('成功获取 Twitter 数据');
+                return { 
+                    ip: data.ip || '未知', 
+                    loc: data.loc || '未知', 
+                    colo: data.colo || '未知',
+                    source: 'x.com'
+                };
+            } catch (error) {
+                console.error('推特入口接口错误:', error);
+                setStatus('status-twitter', 'error');
+                return { ip: '未知', loc: '未知', colo: '未知', source: '失败' };
+            }
         }
 
         // 将布尔值转换为 emoji
@@ -1726,13 +1903,19 @@ apple.com
             results.forEach((result, index) => {
                 const statusClass = result.status === 'success' ? 'status-success' : 'status-error';
                 const ip = result.ip || result.resolved_ip || '-';
+                
+                // 如果有有效IP，创建可点击的链接
+                let ipDisplay = ip;
+                if (ip !== '-' && ip !== 'unknown') {
+                    ipDisplay = `<span class="ip-link" onclick="queryNetworkIpDetail('${ip}')" style="cursor: pointer; text-decoration: underline; color: #667eea;" title="点击查询IP详情">${ip}</span>`;
+                }
 
                 tableHTML += `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${result.input}</td>
                         <td>${result.type || 'unknown'}</td>
-                        <td>${ip}</td>
+                        <td>${ipDisplay}</td>
                         <td>${result.country_name || '-'}</td>
                         <td>${result.country_code || '-'}</td>
                         <td>${result.continent_code || '-'}</td>
@@ -1753,6 +1936,20 @@ apple.com
         }
 
         // ===== 网络信息检测功能 =====
+        async function queryNetworkIpDetail(ip) {
+            try {
+                const response = await fetch(`https://api.ipapi.cmliussss.net/?ip=${ip}`);
+                if (!response.ok) {
+                    throw new Error('查询失败');
+                }
+                const data = await response.json();
+                showIpDetailModal(data);
+            } catch (error) {
+                showToast('❌ 查询IP详细信息失败');
+                console.error('IP查询错误:', error);
+            }
+        }
+
         async function detectNetworkInfo() {
             const content = document.getElementById('networkContent');
             content.innerHTML = `
@@ -1763,24 +1960,23 @@ apple.com
             `;
 
             try {
-                const response = await fetch('/api/network-info', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                // 并行获取所有网络信息
+                const [domesticData, foreignData, cloudflareData, twitterData] = await Promise.all([
+                    fetchDomesticData(),
+                    fetchForeignData(),
+                    fetchCloudFlareData(),
+                    fetchTwitterData()
+                ]);
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+                const data = {
+                    domestic: domesticData,
+                    foreign: foreignData,
+                    cloudflare: cloudflareData,
+                    twitter: twitterData,
+                    client_ip: 'detected'
+                };
 
-                const data = await response.json();
-
-                if (data.success) {
-                    renderNetworkInfo(data.data);
-                } else {
-                    content.innerHTML = '<div class="error">获取网络信息失败：' + (data.message || '未知错误') + '</div>';
-                }
+                renderNetworkInfo(data);
             } catch (error) {
                 console.error('错误:', error);
                 content.innerHTML = '<div class="error">获取网络信息失败：' + error.message + '</div>';
@@ -1833,46 +2029,61 @@ apple.com
                         <div>
                 `;
 
-                if (info && info.status === 'success' && info.ip) {
-                    // 构建 IP 详情卡片
+                if (info && info.ip && info.ip !== '未知') {
                     const ipForDisplay = info.ip;
-                    const countryName = info.country_name || info.country_code || '-';
-                    const countryCode = info.country_code || '-';
-                    const continentName = info.continent_name || '-';
-                    const sourceUrl = info.source_url ? info.source_url.split('?')[0] : '-';
-                    
                     cardHtml += `
                         <div class="info-row">
                             <span class="info-label">IP 地址：</span>
-                            <span class="info-value" style="font-weight: 700; color: #667eea;">${ipForDisplay}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">国家/地区：</span>
-                            <span class="info-value">${countryName}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">国家代码：</span>
-                            <span class="info-value"><code>${countryCode}</code></span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">大洲：</span>
-                            <span class="info-value">${continentName}</span>
-                        </div>
-                        <div class="info-row" style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
-                            <span class="info-label">测试源：</span>
-                            <span class="info-value" style="word-break: break-all; font-size: 0.8em;">${sourceUrl}</span>
+                            <span class="info-value ip-text clickable" style="font-weight: 700; color: #667eea; cursor: pointer;" onclick="queryNetworkIpDetail('${ipForDisplay}')" title="点击查询IP详情">${ipForDisplay}</span>
                         </div>
                     `;
-                } else if (info && info.status === 'failed') {
+                    
+                    // 根据检测类型显示不同的信息
+                    if (point.key === 'domestic') {
+                        cardHtml += `
+                            <div class="info-row">
+                                <span class="info-label">国家/地区：</span>
+                                <span class="info-value">${info.country || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">城市：</span>
+                                <span class="info-value">${info.city || '-'}</span>
+                            </div>
+                        `;
+                    } else if (point.key === 'cloudflare') {
+                        cardHtml += `
+                            <div class="info-row">
+                                <span class="info-label">国家：</span>
+                                <span class="info-value">${info.country || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">组织：</span>
+                                <span class="info-value">${info.org || '-'}</span>
+                            </div>
+                        `;
+                    } else if (point.key === 'twitter') {
+                        cardHtml += `
+                            <div class="info-row">
+                                <span class="info-label">位置：</span>
+                                <span class="info-value">${info.loc || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">数据中心：</span>
+                                <span class="info-value">${info.colo || '-'}</span>
+                            </div>
+                        `;
+                    }
+                    
                     cardHtml += `
-                        <div style="color: #f56565; text-align: center; padding: 20px;">
-                            <p>❌ ${info.message || '无法获取信息'}</p>
+                        <div class="info-row" style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                            <span class="info-label">测试源：</span>
+                            <span class="info-value" style="word-break: break-all; font-size: 0.8em;">${info.source || '未知'}</span>
                         </div>
                     `;
                 } else {
                     cardHtml += `
-                        <div style="color: #999; text-align: center; padding: 20px;">
-                            <p>⏳ 正在测试...</p>
+                        <div style="color: #f56565; text-align: center; padding: 20px;">
+                            <p>❌ 无法获取信息</p>
                         </div>
                     `;
                 }
@@ -1882,19 +2093,6 @@ apple.com
             });
 
             html += '</div>';
-
-            if (data.client_ip && data.client_ip !== 'unknown') {
-                html += `
-                    <div class="description" style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 4px;">
-                        <p style="margin: 0;">
-                            <strong>📡 您的直连 IP：</strong> 
-                            <code style="background: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; color: #667eea;">${data.client_ip}</code>
-                            <small style="color: #999; margin-left: 10px;">(服务器端检测到的您的源IP)</small>
-                        </p>
-                    </div>
-                `;
-            }
-
             content.innerHTML = html;
         }
 
