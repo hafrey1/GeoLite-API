@@ -131,7 +131,7 @@ async function handleBatch(req, res) {
 async function handleNetworkInfo(req, res) {
   await initGeoIP();
 
-  const results = { success: true, data: { domestic: null, foreign: null, cloudflare: null, twitter: null, client_ip: req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown' }, timestamp: new Date().toISOString() };
+  const results = { success: true, data: { domestic: null, foreign: null, cloudflare: null, twitter: null, ip111: null, client_ip: req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown' }, timestamp: new Date().toISOString() };
 
   const testPoints = [
     { 
@@ -139,9 +139,9 @@ async function handleNetworkInfo(req, res) {
       name: '国内测试',
       description: '访问国内网站检测 IP',
       urls: [
-        'https://www.baidu.com',
-        'https://www.163.com',
-        'https://api.bilibili.com',
+        'https://www.baidu.com/',
+        'https://www.163.com/',
+        'https://api.bilibili.com/x/web-interface/nav',
         'https://www.qq.com/',
         'https://www.taobao.com/'
       ],
@@ -155,11 +155,12 @@ async function handleNetworkInfo(req, res) {
       name: '国外测试',
       description: '访问国外网站检测 IP',
       urls: [
-        'https://www.google.com',
+        'https://www.google.com/',
         'https://www.facebook.com/',
         'https://www.youtube.com/',
         'https://www.github.com/',
-
+        'https://ipv4.icanhazip.com/',
+        'https://api.ipify.org?format=json'
       ],
       headers: {
         'Referer': 'https://www.google.com/',
@@ -168,28 +169,40 @@ async function handleNetworkInfo(req, res) {
     },
     { 
       key: 'cloudflare', 
-      name: 'CloudFlare ProxyIP',
-      description: 'CloudFlare CDN IP',
+      name: 'CloudFlare CDN',
+      description: 'CloudFlare 节点 IP',
       urls: [
-        'https://www.cloudflare.com',
-
+        'https://www.cloudflare.com/cdn-cgi/trace',
+        'https://one.one.one.one/doh',
+        'https://example.com/'
       ],
       headers: {
-        'Host': 'www.cloudflare.com',
         'Accept': '*/*'
       }
     },
     { 
       key: 'twitter', 
       name: 'Twitter/X',
-      description: 'Twitter 服务 IP',
+      description: 'Twitter 社交网络 IP',
       urls: [
         'https://x.com/',
         'https://twitter.com/',
-        'https://chatgpt.com/,
+        'https://api.twitter.com/1.1/account/verify_credentials.json'
       ],
       headers: {
         'Referer': 'https://x.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      }
+    },
+    { 
+      key: 'ip111', 
+      name: 'IP111国内测试',
+      description: '通过 ip111.cn 检测国内出口 IP',
+      urls: [
+        'https://ip111.cn/'
+      ],
+      headers: {
+        'Referer': 'https://ip111.cn/',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
       }
     }
