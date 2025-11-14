@@ -131,81 +131,82 @@ async function handleBatch(req, res) {
 async function handleNetworkInfo(req, res) {
   await initGeoIP();
 
-  const results = { success: true, data: { domestic: null, foreign: null, cloudflare: null, twitter: null, ip111: null, client_ip: req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown' }, timestamp: new Date().toISOString() };
+  const results = { success: true, data: { domestic: null, foreign: null, cloudflare: null, twitter: null, client_ip: req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown' }, timestamp: new Date().toISOString() };
 
   const testPoints = [
     { 
       key: 'domestic', 
       name: '国内测试',
-      description: '访问国内网站检测 IP',
+      description: '您访问国内站点所使用的IP',
       urls: [
-        'https://www.baidu.com/',
-        'https://www.163.com/',
-        'https://api.bilibili.com/x/web-interface/nav',
-        'https://www.qq.com/',
-        'https://www.taobao.com/'
+        'https://myip.ipip.net/',
+        'https://www.atool.online/ip',
+        'https://ip.tool.chinaz.com/',
+        'https://checkip.amazonaws.com/',
+        'https://api.ipify.org?format=json'
       ],
       headers: {
-        'Referer': 'https://www.baidu.com/',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://myip.ipip.net/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive'
       }
     },
     { 
       key: 'foreign', 
       name: '国外测试',
-      description: '访问国外网站检测 IP',
+      description: '您访问国外站点所使用的IP',
       urls: [
-        'https://www.google.com/',
-        'https://www.facebook.com/',
-        'https://www.youtube.com/',
-        'https://www.github.com/',
         'https://ipv4.icanhazip.com/',
-        'https://api.ipify.org?format=json'
+        'https://api.ipify.org?format=json',
+        'https://ifconfig.me/',
+        'https://ident.me/',
+        'https://api.myip.com/'
       ],
       headers: {
-        'Referer': 'https://www.google.com/',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://ipv4.icanhazip.com/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br'
       }
     },
     { 
       key: 'cloudflare', 
       name: 'CloudFlare CDN',
-      description: 'CloudFlare 节点 IP',
+      description: '您访问 CF CDN 所使用的IP',
       urls: [
         'https://www.cloudflare.com/cdn-cgi/trace',
-        'https://one.one.one.one/doh',
-        'https://example.com/'
+        'https://1.1.1.1/',
+        'https://1.0.0.1/',
+        'https://ipv4.icanhazip.com/'
       ],
       headers: {
-        'Accept': '*/*'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://www.cloudflare.com/',
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache'
       }
     },
     { 
       key: 'twitter', 
       name: 'Twitter/X',
-      description: 'Twitter 社交网络 IP',
+      description: '通过 IP 定位服务查询',
       urls: [
-        'https://x.com/',
-        'https://twitter.com/',
-        'https://api.twitter.com/1.1/account/verify_credentials.json'
+        'https://ifconfig.me/',
+        'https://api.ipify.org?format=json',
+        'https://ipinfo.io/ip',
+        'https://www.atool.online/ip'
       ],
       headers: {
-        'Referer': 'https://x.com/',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://ifconfig.me/',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br'
       }
     },
-    { 
-      key: 'ip111', 
-      name: 'IP111国内测试',
-      description: '通过 ip111.cn 检测国内出口 IP',
-      urls: [
-        'https://ip111.cn/'
-      ],
-      headers: {
-        'Referer': 'https://ip111.cn/',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-      }
-    }
   ];
 
   const promises = testPoints.map(point => detectIP(point));
