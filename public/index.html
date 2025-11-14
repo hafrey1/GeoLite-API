@@ -978,6 +978,181 @@
             font-weight: 700;
             color: #2c3e50;
             word-break: break-all;
+        }
+
+        /* 网络卡片样式 */
+        .port-info {
+            margin-top: 0;
+            padding: 0;
+        }
+
+        .port-info > h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .network-cards-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .network-card {
+            background: rgba(255, 255, 255, 0.6);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            border-left: 4px solid transparent;
+        }
+
+        .network-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(250, 171, 65, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .network-card:hover {
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.12), 0 0 12px rgba(250, 171, 65, 0.08);
+            transform: translateY(-4px);
+            border-left-color: #faab41;
+        }
+
+        .network-card:hover::before {
+            left: 100%;
+        }
+
+        .network-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: none;
+        }
+
+        .status-indicator.status-loading {
+            background-color: #ffa500;
+            box-shadow: 0 0 5px #ffa500;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-indicator.status-success {
+            background-color: #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+
+        .status-indicator.status-error {
+            background-color: #f44336;
+            box-shadow: 0 0 5px #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .network-info-content {
+            padding-left: 0;
+        }
+
+        .ip-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            word-break: break-all;
+            margin-bottom: 8px;
+            cursor: default;
+            transition: all 0.2s;
+            display: block;
+        }
+
+        .ip-text.clickable {
+            cursor: pointer;
+            color: #2196F3;
+        }
+
+        .ip-text.clickable:hover {
+            color: #1976D2;
+        }
+
+        .ip-text .error {
+            color: #f44336;
+            font-size: 14px;
+        }
+
+        .location-text {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .country-text,
+        .city-text {
+            flex: 1;
+        }
+
+        .network-tip {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 1024px) {
+            .network-cards-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .network-cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        code {
             font-family: 'Courier New', monospace;
             background: white;
             padding: 3px 6px;
@@ -1155,15 +1330,71 @@
 
         <!-- 4列并排模块布局 -->
         <div class="modules-grid">
-            <!-- 网络检测模块 -->
+            <!-- 当前网络信息模块 -->
             <div class="module">
                 <div class="module-header">
-                    <h3>🌐 网络检测<br><span style="font-size: 0.8em;">(自动检测)</span></h3>
+                    <h3>🌍 当前网络信息</h3>
                 </div>
                 <div class="module-content">
-                    <div class="network-info-section">
-                        <button class="btn" onclick="detectNetworkInfo()" style="width: 100%; margin-bottom: 12px;">🔄 刷新</button>
-                        <div id="networkContent"></div>
+                    <div class="port-info">
+                        <div class="network-cards-container">
+                            <div class="network-card">
+                                <div class="network-card-title">
+                                    <span class="status-indicator" id="status-ipip"></span>
+                                    国内测试
+                                </div>
+                                <div class="network-info-content">
+                                    <span id="ipip-ip" class="ip-text">-</span>
+                                    <div class="location-text">
+                                        <span id="ipip-country" class="country-text">-</span>
+                                    </div>
+                                    <div class="network-tip">· 您访问国内站点所使用的IP</div>
+                                </div>
+                            </div>
+
+                            <div class="network-card">
+                                <div class="network-card-title">
+                                    <span class="status-indicator" id="status-edgeone"></span>
+                                    国外测试
+                                </div>
+                                <div class="network-info-content">
+                                    <span id="edgeone-ip" class="ip-text">-</span>
+                                    <div class="location-text">
+                                        <span id="edgeone-country" class="country-text">-</span>
+                                    </div>
+                                    <div class="network-tip">· 您访问没有被封的国外站点所使用的IP</div>
+                                </div>
+                            </div>
+
+                            <div class="network-card">
+                                <div class="network-card-title">
+                                    <span class="status-indicator" id="status-cf"></span>
+                                    CloudFlare(ProxyIP)
+                                </div>
+                                <div class="network-info-content">
+                                    <span id="cf-ip" class="ip-text">-</span>
+                                    <div class="location-text">
+                                        <span id="cf-country" class="country-text">-</span>
+                                    </div>
+                                    <div class="network-tip">· 您访问CFCDN站点所使用的落地IP</div>
+                                </div>
+                            </div>
+
+                            <div class="network-card">
+                                <div class="network-card-title">
+                                    <span class="status-indicator" id="status-twitter"></span>
+                                    Twitter/X
+                                </div>
+                                <div class="network-info-content">
+                                    <span id="twitter-ip" class="ip-text">-</span>
+                                    <div class="location-text">
+                                        <span id="twitter-country" class="country-text">-</span>
+                                    </div>
+                                    <div class="network-tip">· 您访问Twitter(x.com)所使用的IP</div>
+                                </div>
+                            </div>
+                        </div>
+                        <small style="font-size: 12px; color: #9ca3af; margin-top: 6px; display: block;">💡 <b>国内测试</b> 是由您梯子的 <b>分流规则</b> 决定的，<b>国外测试</b> 是由您的 <b>优选IP</b> 决定的，而 <b>CF、Twitter、ChatGPT</b> 是由您的 <b>PROXYIP</b> 决定的。</small>
                     </div>
                 </div>
             </div>
@@ -1752,6 +1983,210 @@ apple.com
             hideProgress();
         }
 
+        // ===== 新网络卡信息检测功能 =====
+        // 设置状态指示器
+        function setNetworkStatus(id, status) {
+            const indicator = document.getElementById(id);
+            if (indicator) {
+                indicator.className = 'status-indicator';
+                if (status === 'loading') {
+                    indicator.classList.add('status-loading');
+                } else if (status === 'success') {
+                    indicator.classList.add('status-success');
+                } else if (status === 'error') {
+                    indicator.classList.add('status-error');
+                }
+            }
+        }
+
+        // 获取国内IP信息
+        async function fetchDomesticIp() {
+            try {
+                setNetworkStatus('status-ipip', 'loading');
+                
+                // 尝试多个数据源
+                const apis = [
+                    'https://ipinfo.io/json',
+                    'https://api.ipify.org?format=json',
+                    'https://api.ip.sb/geoip'
+                ];
+
+                let data = null;
+                for (const api of apis) {
+                    try {
+                        const response = await fetch(api, { timeout: 5000 });
+                        if (response.ok) {
+                            data = await response.json();
+                            break;
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+
+                if (data) {
+                    const ip = data.ip || data.query || '-';
+                    const country = data.country || data.country_name || '-';
+                    
+                    document.getElementById('ipip-ip').textContent = ip;
+                    document.getElementById('ipip-country').textContent = country;
+                    
+                    // 使IP可点击
+                    makeIpClickable('ipip-ip', ip);
+                    setNetworkStatus('status-ipip', 'success');
+                } else {
+                    throw new Error('无可用数据源');
+                }
+            } catch (error) {
+                console.error('国内IP获取失败:', error);
+                document.getElementById('ipip-ip').textContent = '获取失败';
+                document.getElementById('ipip-country').textContent = '-';
+                setNetworkStatus('status-ipip', 'error');
+            }
+        }
+
+        // 获取国外IP信息
+        async function fetchForeignIp() {
+            try {
+                setNetworkStatus('status-edgeone', 'loading');
+                
+                const response = await fetch('https://api.ipify.org?format=json');
+                if (!response.ok) throw new Error('API错误');
+                
+                const data = await response.json();
+                const ip = data.ip || '-';
+                
+                document.getElementById('edgeone-ip').textContent = ip;
+                document.getElementById('edgeone-country').textContent = '检测中...';
+                
+                makeIpClickable('edgeone-ip', ip);
+                setNetworkStatus('status-edgeone', 'success');
+            } catch (error) {
+                console.error('国外IP获取失败:', error);
+                document.getElementById('edgeone-ip').textContent = '获取失败';
+                document.getElementById('edgeone-country').textContent = '-';
+                setNetworkStatus('status-edgeone', 'error');
+            }
+        }
+
+        // 获取CloudFlare IP信息
+        async function fetchCloudFlareIp() {
+            try {
+                setNetworkStatus('status-cf', 'loading');
+                
+                const response = await fetch('https://cf.090227.xyz/ip.json');
+                if (!response.ok) throw new Error('API错误');
+                
+                const data = await response.json();
+                const ip = data.ip || '-';
+                
+                document.getElementById('cf-ip').textContent = ip;
+                document.getElementById('cf-country').textContent = '美国/其他';
+                
+                makeIpClickable('cf-ip', ip);
+                setNetworkStatus('status-cf', 'success');
+            } catch (error) {
+                console.error('CloudFlare IP获取失败:', error);
+                document.getElementById('cf-ip').textContent = '获取失败';
+                document.getElementById('cf-country').textContent = '-';
+                setNetworkStatus('status-cf', 'error');
+            }
+        }
+
+        // 获取Twitter IP信息
+        async function fetchTwitterIp() {
+            try {
+                setNetworkStatus('status-twitter', 'loading');
+                
+                const response = await fetch('https://x.com/cdn-cgi/trace');
+                if (!response.ok) throw new Error('API错误');
+                
+                const text = await response.text();
+                const lines = text.split('\n');
+                let ip = '-';
+                
+                for (const line of lines) {
+                    if (line.startsWith('ip=')) {
+                        ip = line.substring(3);
+                        break;
+                    }
+                }
+                
+                document.getElementById('twitter-ip').textContent = ip;
+                document.getElementById('twitter-country').textContent = '美国/其他';
+                
+                makeIpClickable('twitter-ip', ip);
+                setNetworkStatus('status-twitter', 'success');
+            } catch (error) {
+                console.error('Twitter IP获取失败:', error);
+                document.getElementById('twitter-ip').textContent = '获取失败';
+                document.getElementById('twitter-country').textContent = '-';
+                setNetworkStatus('status-twitter', 'error');
+            }
+        }
+
+        // 使IP可点击，显示详细信息
+        function makeIpClickable(elementId, ip) {
+            const element = document.getElementById(elementId);
+            if (element && ip !== '-' && ip !== '获取失败') {
+                element.style.cursor = 'pointer';
+                element.style.color = '#2196F3';
+                element.onclick = function(e) {
+                    e.stopPropagation();
+                    fetchIpDetails(ip);
+                };
+            }
+        }
+
+        // 获取IP详细信息并显示模态框
+        async function fetchIpDetails(ip) {
+            try {
+                // 尝试从多个API获取详细信息
+                let response = await fetch(`https://ipinfo.io/${ip}/json`);
+                
+                if (!response.ok) {
+                    response = await fetch(`https://api.ip.sb/geoip/${ip}`);
+                }
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // 构建显示数据
+                    const displayData = {
+                        ip: ip,
+                        country_name: data.country_name || data.country || '-',
+                        country_code: data.country_code || data.country || '-',
+                        city: data.city || '-',
+                        latitude: data.latitude || data.loc?.split(',')[0] || '-',
+                        longitude: data.longitude || data.loc?.split(',')[1] || '-',
+                        isp: data.org || data.isp || '-',
+                        timezone: data.timezone || '-'
+                    };
+                    
+                    showIpDetailModal(displayData);
+                } else {
+                    showToast('无法获取IP详细信息');
+                }
+            } catch (error) {
+                console.error('获取IP详情失败:', error);
+                showToast('获取IP详情失败：' + error.message);
+            }
+        }
+
+        // 加载所有网络信息
+        async function loadNetworkCards() {
+            try {
+                await Promise.all([
+                    fetchDomesticIp(),
+                    fetchForeignIp(),
+                    fetchCloudFlareIp(),
+                    fetchTwitterIp()
+                ]);
+            } catch (error) {
+                console.error('加载网络信息出错:', error);
+            }
+        }
+
         // ===== 网络信息检测功能 =====
         async function detectNetworkInfo() {
             const content = document.getElementById('networkContent');
@@ -1763,174 +2198,27 @@ apple.com
             `;
 
             try {
-                // 并行执行多个网络检测
-                const [ipipData, edgeOneData, cfData, twitterData] = await Promise.allSettled([
-                    fetchIpipData().catch(e => ({ status: 'failed', message: e.message })),
-                    fetchEdgeOneData().catch(e => ({ status: 'failed', message: e.message })),
-                    fetchCloudFlareData().catch(e => ({ status: 'failed', message: e.message })),
-                    fetchTwitterData().catch(e => ({ status: 'failed', message: e.message }))
-                ]);
-
-                // 获取服务器端检测到的 IP
-                let clientIp = 'unknown';
-                try {
-                    const response = await fetch('/api/network-info', {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.data && data.data.client_ip) {
-                            clientIp = data.data.client_ip;
-                        }
+                const response = await fetch('/api/network-info', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
-                } catch (e) {
-                    console.warn('无法获取服务器端 IP:', e);
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
-                renderNetworkInfo({
-                    ipip: ipipData.status === 'fulfilled' ? ipipData.value : { status: 'failed' },
-                    edgeOne: edgeOneData.status === 'fulfilled' ? edgeOneData.value : { status: 'failed' },
-                    cloudflare: cfData.status === 'fulfilled' ? cfData.value : { status: 'failed' },
-                    twitter: twitterData.status === 'fulfilled' ? twitterData.value : { status: 'failed' },
-                    client_ip: clientIp
-                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderNetworkInfo(data.data);
+                } else {
+                    content.innerHTML = '<div class="error">获取网络信息失败：' + (data.message || '未知错误') + '</div>';
+                }
             } catch (error) {
                 console.error('错误:', error);
                 content.innerHTML = '<div class="error">获取网络信息失败：' + error.message + '</div>';
-            }
-        }
-
-        // 获取国内测试数据
-        async function fetchIpipData() {
-            setStatus('status-ipip', 'loading');
-
-            const apiConfigs = [
-                {
-                    name: 'speedtest.cn',
-                    url: 'https://api-v3.speedtest.cn/ip',
-                    parser: (data) => {
-                        if (data.code === 0 && data.data) {
-                            return {
-                                ip: data.data.ip || '未知',
-                                country: data.data.country || '未知',
-                                city: data.data.city || '未知',
-                                status: 'success'
-                            };
-                        }
-                        throw new Error('数据格式错误');
-                    }
-                },
-                {
-                    name: 'ipipv.com',
-                    url: 'https://myip.ipipv.com/',
-                    parser: (data) => {
-                        return {
-                            ip: data.Ip || '未知',
-                            country: data.Country || '未知',
-                            city: data.City || '未知',
-                            status: 'success'
-                        };
-                    }
-                },
-                {
-                    name: 'ipip.net',
-                    url: 'https://myip.ipip.net/json',
-                    parser: (data) => {
-                        if (data.ret === 'ok' && data.data) {
-                            return {
-                                ip: data.data.ip || '未知',
-                                country: data.data.location[0] || '未知',
-                                city: data.data.location[2] || '未知',
-                                status: 'success'
-                            };
-                        }
-                        throw new Error('数据格式错误');
-                    }
-                }
-            ];
-
-            for (const config of apiConfigs) {
-                try {
-                    const timestamp = Date.now();
-                    const url = config.url + (config.url.includes('?') ? '&' : '?') + `_t=${timestamp}`;
-                    const response = await fetch(url, { timeout: 5000 });
-                    const data = await response.json();
-                    const result = config.parser(data);
-                    setStatus('status-ipip', 'success');
-                    return result;
-                } catch (error) {
-                    console.warn(`${config.name} 接口失败:`, error);
-                }
-            }
-
-            setStatus('status-ipip', 'error');
-            return { status: 'failed', ip: '加载失败', country: '', city: '' };
-        }
-
-        // 获取 EdgeOne 数据
-        async function fetchEdgeOneData() {
-            setStatus('status-edgeone', 'loading');
-            try {
-                const response = await fetch(`https://api.ipapi.cmliussss.net`);
-                const data = await response.json();
-                setStatus('status-edgeone', 'success');
-                return {
-                    ip: data.ip || '未知',
-                    country: `${data.location?.country_code || '-'} AS${data.asn?.asn || '-'}`,
-                    city: data.asn?.org || '未知',
-                    status: 'success'
-                };
-            } catch (error) {
-                setStatus('status-edgeone', 'error');
-                return { status: 'failed', ip: '加载失败', country: '', city: '' };
-            }
-        }
-
-        // 获取 CloudFlare 数据
-        async function fetchCloudFlareData() {
-            setStatus('status-cf', 'loading');
-            try {
-                const timestamp = Date.now();
-                const response = await fetch(`https://cf.090227.xyz/ip.json?_t=${timestamp}`);
-                const data = await response.json();
-                setStatus('status-cf', 'success');
-                return {
-                    ip: data.ip || '未知',
-                    country: data.country || '未知',
-                    city: data.org || '未知',
-                    status: 'success'
-                };
-            } catch (error) {
-                setStatus('status-cf', 'error');
-                return { status: 'failed', ip: '加载失败', country: '', city: '' };
-            }
-        }
-
-        // 获取推特入口数据
-        async function fetchTwitterData() {
-            setStatus('status-twitter', 'loading');
-            try {
-                const timestamp = Date.now();
-                const response = await fetch(`https://x.com/cdn-cgi/trace?_t=${timestamp}`);
-                const text = await response.text();
-                const data = {};
-                text.split('\n').forEach(line => {
-                    const [key, value] = line.split('=');
-                    if (key && value) {
-                        data[key.trim()] = value.trim();
-                    }
-                });
-                setStatus('status-twitter', 'success');
-                return {
-                    ip: data.ip || '未知',
-                    country: data.loc || '未知',
-                    city: data.colo || '未知',
-                    status: 'success'
-                };
-            } catch (error) {
-                setStatus('status-twitter', 'error');
-                return { status: 'failed', ip: '加载失败', country: '', city: '' };
             }
         }
 
@@ -1939,39 +2227,35 @@ apple.com
 
             const testPoints = [
                 {
-                    key: 'ipip',
+                    key: 'domestic',
                     icon: '🇨🇳',
                     title: '国内测试',
-                    description: '您访问国内站点所使用的IP',
-                    dataKey: 'ipip'
+                    description: '您访问国内站点所使用的IP'
                 },
                 {
-                    key: 'edgeOne',
-                    icon: '⚡',
-                    title: 'EdgeOne',
-                    description: '腾讯 EdgeOne CDN 落地IP',
-                    dataKey: 'edgeOne'
+                    key: 'foreign',
+                    icon: '🌍',
+                    title: '国外测试',
+                    description: '您访问国外站点所使用的IP'
                 },
                 {
                     key: 'cloudflare',
                     icon: '☁️',
-                    title: 'CloudFlare',
-                    description: '您访问CF CDN所使用的IP',
-                    dataKey: 'cloudflare'
+                    title: 'CloudFlare ProxyIP',
+                    description: '您访问CFCDN站点所使用的落地IP'
                 },
                 {
                     key: 'twitter',
                     icon: '𝕏',
                     title: 'Twitter/X',
-                    description: '您访问 X.com 所使用的IP',
-                    dataKey: 'twitter'
+                    description: '您访问Twitter(x.com)所使用的IP'
                 }
             ];
 
             let html = '<div class="info-grid">';
 
             testPoints.forEach(point => {
-                const info = data[point.dataKey];
+                const info = data[point.key];
                 let cardHtml = `
                     <div class="info-card">
                         <div class="card-title">
@@ -1985,26 +2269,39 @@ apple.com
                 `;
 
                 if (info && info.status === 'success' && info.ip) {
+                    // 构建 IP 详情卡片
                     const ipForDisplay = info.ip;
+                    const countryName = info.country_name || info.country_code || '-';
+                    const countryCode = info.country_code || '-';
+                    const continentName = info.continent_name || '-';
+                    const sourceUrl = info.source_url ? info.source_url.split('?')[0] : '-';
                     
                     cardHtml += `
                         <div class="info-row">
                             <span class="info-label">IP 地址：</span>
-                            <span class="ip-text info-value" style="font-weight: 700; color: #667eea; cursor: pointer;" title="点击查询详情">${ipForDisplay}</span>
+                            <span class="info-value" style="font-weight: 700; color: #667eea;">${ipForDisplay}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">国家/地区：</span>
-                            <span class="info-value">${info.country || '-'}</span>
+                            <span class="info-value">${countryName}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">城市：</span>
-                            <span class="info-value">${info.city || '-'}</span>
+                            <span class="info-label">国家代码：</span>
+                            <span class="info-value"><code>${countryCode}</code></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">大洲：</span>
+                            <span class="info-value">${continentName}</span>
+                        </div>
+                        <div class="info-row" style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                            <span class="info-label">测试源：</span>
+                            <span class="info-value" style="word-break: break-all; font-size: 0.8em;">${sourceUrl}</span>
                         </div>
                     `;
                 } else if (info && info.status === 'failed') {
                     cardHtml += `
                         <div style="color: #f56565; text-align: center; padding: 20px;">
-                            <p>❌ ${info.message || info.ip || '无法获取信息'}</p>
+                            <p>❌ ${info.message || '无法获取信息'}</p>
                         </div>
                     `;
                 } else {
@@ -2026,7 +2323,7 @@ apple.com
                     <div class="description" style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 4px;">
                         <p style="margin: 0;">
                             <strong>📡 您的直连 IP：</strong> 
-                            <code style="background: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; color: #667eea; cursor: pointer;" class="ip-text" title="点击查询详情">${data.client_ip}</code>
+                            <code style="background: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; color: #667eea;">${data.client_ip}</code>
                             <small style="color: #999; margin-left: 10px;">(服务器端检测到的您的源IP)</small>
                         </p>
                     </div>
@@ -2034,16 +2331,12 @@ apple.com
             }
 
             content.innerHTML = html;
-
-            // 使 IP 可点击
-            setTimeout(() => {
-                makeIpClickable();
-            }, 100);
         }
 
         // 页面加载时自动检测网络信息
         window.addEventListener('load', function() {
             detectNetworkInfo();
+            loadNetworkCards();
             loadSampleData();
         });
     </script>
