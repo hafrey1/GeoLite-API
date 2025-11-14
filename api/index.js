@@ -139,9 +139,9 @@ async function handleNetworkInfo(req, res) {
       name: '国内测试',
       description: '访问国内网站检测 IP',
       urls: [
-        'https://www.baidu.com/ping.html',
-        'https://www.163.com/special/00097E81/check_xiaomi.htm',
-        'https://api.bilibili.com/x/web-interface/nav',
+        'https://www.baidu.com',
+        'https://www.163.com',
+        'https://api.bilibili.com',
         'https://www.qq.com/',
         'https://www.taobao.com/'
       ],
@@ -155,12 +155,11 @@ async function handleNetworkInfo(req, res) {
       name: '国外测试',
       description: '访问国外网站检测 IP',
       urls: [
-        'https://www.google.com/search?q=test',
+        'https://www.google.com',
         'https://www.facebook.com/',
         'https://www.youtube.com/',
         'https://www.github.com/',
-        'https://ipv4.icanhazip.com/',
-        'https://api.ipify.org?format=json'
+
       ],
       headers: {
         'Referer': 'https://www.google.com/',
@@ -172,9 +171,8 @@ async function handleNetworkInfo(req, res) {
       name: 'CloudFlare ProxyIP',
       description: 'CloudFlare CDN IP',
       urls: [
-        'https://www.cloudflare.com/cdn-cgi/trace',
-        'https://one.one.one.one/doh',
-        'https://example.com/'
+        'https://www.cloudflare.com',
+
       ],
       headers: {
         'Host': 'www.cloudflare.com',
@@ -188,7 +186,7 @@ async function handleNetworkInfo(req, res) {
       urls: [
         'https://x.com/',
         'https://twitter.com/',
-        'https://api.twitter.com/1.1/account/verify_credentials.json'
+        'https://chatgpt.com/,
       ],
       headers: {
         'Referer': 'https://x.com/',
