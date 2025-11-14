@@ -5,8 +5,16 @@
       "destination": "/index.html"
     },
     {
-      "source": "/batch",
-      "destination": "/batch.html"
+      "source": "/api/query",
+      "destination": "/api/index?route=query"
+    },
+    {
+      "source": "/api/batch",
+      "destination": "/api/index?route=batch"
+    },
+    {
+      "source": "/api/network-info",
+      "destination": "/api/index?route=network-info"
     }
   ],
   "headers": [

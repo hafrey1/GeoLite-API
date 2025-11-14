@@ -1,0 +1,7 @@
+type NodeReader = (offset: number) => number;
+export interface Walker {
+    left: NodeReader;
+    right: NodeReader;
+}
+declare const _default: (db: Buffer, recordSize: number) => Walker;
+export default _default;
