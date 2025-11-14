@@ -94,7 +94,7 @@ async function handleBatch(req, res) {
 
   if (!Array.isArray(inputs)) return res.status(400).json({ error: '无效输入格式', message: 'inputs必须是数组格式' });
   if (inputs.length === 0) return res.status(400).json({ error: '输入为空', message: '请提供至少一个IP地址或域名' });
-  if (inputs.length > 200) return res.status(400).json({ error: '查询数量超限', message: '单次批量查询最多支持100个地址' });
+  if (inputs.length > 500) return res.status(400).json({ error: '查询数量超限', message: '单次批量查询最多支持500个地址' });
 
   const startTime = Date.now();
   const promises = inputs.map(async (input) => {
