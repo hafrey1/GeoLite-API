@@ -1341,6 +1341,12 @@ twitter.com
                     icon: '𝕏',
                     title: 'Twitter/X',
                     description: '您访问Twitter(x.com)所使用的IP'
+                },
+                {
+                    key: 'ip111',
+                    icon: '🔍',
+                    title: 'IP111国内',
+                    description: '通过IP111检测的国内出口IP'
                 }
             ];
 
@@ -1361,28 +1367,45 @@ twitter.com
                 `;
 
                 if (info && info.status === 'success' && info.ip) {
+                    // 构建 IP 详情卡片
+                    const ipForDisplay = info.ip;
+                    const countryName = info.country_name || info.country_code || '-';
+                    const countryCode = info.country_code || '-';
+                    const continentName = info.continent_name || '-';
+                    const sourceUrl = info.source_url ? info.source_url.split('?')[0] : '-';
+                    
                     cardHtml += `
                         <div class="info-row">
                             <span class="info-label">IP 地址：</span>
-                            <span class="info-value">${info.ip}</span>
+                            <span class="info-value" style="font-weight: 700; color: #667eea;">${ipForDisplay}</span>
                         </div>
                         <div class="info-row">
-                            <span class="info-label">国家：</span>
-                            <span class="info-value">${info.country_name || '-'}</span>
+                            <span class="info-label">国家/地区：</span>
+                            <span class="info-value">${countryName}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">国家代码：</span>
-                            <span class="info-value">${info.country_code}</span>
+                            <span class="info-value"><code>${countryCode}</code></span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">大洲：</span>
-                            <span class="info-value">${info.continent_name || '-'}</span>
+                            <span class="info-value">${continentName}</span>
+                        </div>
+                        <div class="info-row" style="font-size: 0.85em; color: #999; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                            <span class="info-label">测试源：</span>
+                            <span class="info-value" style="word-break: break-all; font-size: 0.8em;">${sourceUrl}</span>
+                        </div>
+                    `;
+                } else if (info && info.status === 'failed') {
+                    cardHtml += `
+                        <div style="color: #f56565; text-align: center; padding: 20px;">
+                            <p>❌ ${info.message || '无法获取信息'}</p>
                         </div>
                     `;
                 } else {
                     cardHtml += `
                         <div style="color: #999; text-align: center; padding: 20px;">
-                            <p>暂时无法获取信息</p>
+                            <p>⏳ 正在测试...</p>
                         </div>
                     `;
                 }
@@ -1395,9 +1418,11 @@ twitter.com
 
             if (data.client_ip && data.client_ip !== 'unknown') {
                 html += `
-                    <div class="description" style="margin-top: 20px;">
-                        <p>
-                            <strong>您的直连 IP：</strong> <code>${data.client_ip}</code>
+                    <div class="description" style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-left: 4px solid #667eea; border-radius: 4px;">
+                        <p style="margin: 0;">
+                            <strong>📡 您的直连 IP：</strong> 
+                            <code style="background: white; padding: 2px 6px; border-radius: 3px; font-weight: 700; color: #667eea;">${data.client_ip}</code>
+                            <small style="color: #999; margin-left: 10px;">(服务器端检测到的您的源IP)</small>
                         </p>
                     </div>
                 `;
