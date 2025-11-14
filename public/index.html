@@ -1735,7 +1735,7 @@ curl "https://your-domain.vercel.app/api/query?input=google.com"</pre>
             } else {
                 riskControlHTML = '未知';
             }
-            let detailHTML = `<div class="ip-detail-content"><button class="ip-detail-close" onclick="this.closest('.ip-detail-modal').remove()">×</button><div class="ip-detail-title">🔍 IP 详细信息<span class="ip-detail-source">数据来源: ipapi.cmliussss.net</span></div>`;
+            let detailHTML = `<div class="ip-detail-content"><button class="ip-detail-close" onclick="this.closest('.ip-detail-modal').remove()">×</button><div class="ip-detail-title">🔍 IP 详细信息<span class="ip-detail-source">数据来源: ipapi.is</span></div>`;
             detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">📍 基本信息</div><div class="ip-detail-item"><span class="ip-detail-label">IP 地址</span><span class="ip-detail-value">${data.ip || '未知'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">区域互联网注册机构</span><span class="ip-detail-value">${data.rir || '未知'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">运营商 / ASN 类型</span><span class="ip-detail-value">${formatIpType(data.company?.type)} / ${formatIpType(data.asn?.type)}</span></div><div class="ip-detail-item"><span class="ip-detail-label">综合滥用评分<span class="score-help-icon" onclick="event.stopPropagation(); toggleScoreTooltip(this);" title="点击查看算法说明">?</span><span class="score-tooltip"><div class="tooltip-header"><span class="tooltip-title">📊 综合滥用评分算法</span></div><div class="tooltip-section"><p class="tooltip-section-title">评分公式</p><div class="formula-item"><span class="formula-name">基础分</span><span class="formula-equation"><code>(运营商分 + ASN分) / 2 * 5</code></span></div><div class="formula-item"><span class="formula-name">风险附加</span><span class="formula-equation"><code>风险项数量 * 15%</code></span></div></div><div class="tooltip-section"><p class="tooltip-section-title">安全风险项</p><ul class="risk-list"><li>爬虫 (Crawler)</li><li>代理 (Proxy)</li><li>VPN</li><li>Tor 网络</li><li>滥用IP (Abuser)</li><li>虚假IP (Bogon)</li></ul></div></span></span><span class="ip-detail-value">${riskControlHTML}</span></div></div>`;
             detailHTML += `<div class="ip-detail-section"><div class="ip-detail-section-title">🛡️ 安全检测</div><div class="ip-detail-item"><span class="ip-detail-label">移动网络</span><span class="ip-detail-value">${data.is_mobile ? '<span class="success-text">📱 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">数据中心</span><span class="ip-detail-value">${data.is_datacenter ? '<span class="warning-text">🏢 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">卫星网络</span><span class="ip-detail-value">${data.is_satellite ? '<span class="success-text">🛰️ 是</span>' : '否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">爬虫</span><span class="ip-detail-value">${data.is_crawler ? '<span class="danger-text">🤖 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">代理服务器</span><span class="ip-detail-value">${data.is_proxy ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">VPN</span><span class="ip-detail-value">${data.is_vpn ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">Tor 网络</span><span class="ip-detail-value">${data.is_tor ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">滥用 IP</span><span class="ip-detail-value">${data.is_abuser ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div><div class="ip-detail-item"><span class="ip-detail-label">虚假 IP</span><span class="ip-detail-value">${data.is_bogon ? '<span class="danger-text">⚠️ 是</span>' : '✅ 否'}</span></div></div>`;
             if (data.location) {
@@ -2240,26 +2240,71 @@ apple.com
         // 获取IP详细信息并显示模态框
         async function fetchIpDetails(ip) {
             try {
-                // 尝试从多个API获取详细信息
-                let response = await fetch(`https://ipinfo.io/${ip}/json`);
-                
-                if (!response.ok) {
-                    response = await fetch(`https://api.ip.sb/geoip/${ip}`);
-                }
+                // 使用 ipapi.is 获取详细信息
+                const response = await fetch(`https://api.ipapi.is/?q=${ip}`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     
-                    // 构建显示数据
+                    if (data.error) {
+                        showToast('无法获取IP详细信息：' + (data.error_message || '未知错误'));
+                        return;
+                    }
+                    
+                    // 将 ipapi.is 的响应映射到 showIpDetailModal 期望的格式
                     const displayData = {
-                        ip: ip,
-                        country_name: data.country_name || data.country || '-',
-                        country_code: data.country_code || data.country || '-',
-                        city: data.city || '-',
-                        latitude: data.latitude || data.loc?.split(',')[0] || '-',
-                        longitude: data.longitude || data.loc?.split(',')[1] || '-',
-                        isp: data.org || data.isp || '-',
-                        timezone: data.timezone || '-'
+                        ip: data.ip,
+                        rir: data.rir || '未知',
+                        is_mobile: data.is_mobile,
+                        is_datacenter: data.is_datacenter,
+                        is_satellite: data.is_satellite,
+                        is_crawler: data.is_crawler,
+                        is_proxy: data.is_proxy,
+                        is_vpn: data.is_vpn,
+                        is_tor: data.is_tor,
+                        is_abuser: data.is_abuser,
+                        is_bogon: data.is_bogon,
+                        
+                        // 位置信息
+                        location: {
+                            country: data.location?.country,
+                            country_code: data.location?.country_code,
+                            state: data.location?.state,
+                            city: data.location?.city,
+                            zip: data.location?.zip,
+                            latitude: data.location?.latitude,
+                            longitude: data.location?.longitude,
+                            timezone: data.location?.timezone,
+                            local_time: data.location?.local_time,
+                            is_eu_member: data.location?.is_eu_member
+                        },
+                        
+                        // 运营商信息
+                        company: {
+                            name: data.company?.name,
+                            domain: data.company?.domain,
+                            type: data.company?.type,
+                            network: data.company?.network,
+                            abuser_score: data.company?.abuser_score
+                        },
+                        
+                        // ASN 信息
+                        asn: {
+                            asn: data.asn?.asn,
+                            org: data.asn?.org,
+                            route: data.asn?.route,
+                            type: data.asn?.type,
+                            country: data.asn?.country,
+                            abuser_score: data.asn?.abuser_score
+                        },
+                        
+                        // 滥用举报信息
+                        abuse: {
+                            name: data.abuse?.name,
+                            email: data.abuse?.email,
+                            phone: data.abuse?.phone,
+                            address: data.abuse?.address
+                        }
                     };
                     
                     showIpDetailModal(displayData);
