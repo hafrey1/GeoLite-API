@@ -15,6 +15,71 @@
 - 📋 **RESTful API**: 简洁的API接口设计
 
 
+## 🔧 部署指南
+
+### 1. GitHub仓库准备
+
+1. 在GitHub创建新仓库 `GeoLite-API`
+2. 将所有代码文件上传到仓库
+3. 从MaxMind下载 `GeoLite2-Country.mmdb` 文件到 `data/` 目录
+
+### 2. Vercel部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
+
+1. 访问 [Vercel](https://vercel.com) 并登录
+2. 点击 "New Project"
+3. 选择你的GitHub仓库
+4. 配置环境变量（如需要）
+5. 点击Deploy
+
+### 3. 测试验证
+
+- 访问部署后的域名查看API文档
+- 使用 `/test` 页面进行批量测试
+- 验证单个查询和批量查询功能
+
+## 🎯 使用场景
+
+- **VPN节点过滤**: 为订阅节点添加地理标签
+- **网络分析**: 批量分析IP地址归属地
+- **安全监控**: 检测异常访问来源
+- **数据分析**: 用户地理分布统计
+- **CDN优化**: 选择最优服务节点
+- **内容分发**: 基于地理位置的内容推送
+- **合规检查**: 地域访问限制检查
+
+## 🛠️ 技术栈
+
+- **运行环境**: Node.js 18.x
+- **部署平台**: Vercel Serverless Functions
+- **数据库**: MaxMind GeoLite2-Country.mmdb
+- **核心依赖**: maxmind, dns
+- **前端**: 原生HTML/CSS/JavaScript
+
+## ⚡ 性能特点
+
+- **查询速度**: 单次查询 < 10ms
+- **批量处理**: 100个地址 < 500ms
+- **内存占用**: 数据库加载后约50MB
+- **并发支持**: Vercel无服务器自动扩展
+- **缓存优化**: 数据库内存常驻缓存
+
+## 🔍 数据准确性
+
+- **数据源**: MaxMind GeoLite2-Country数据库
+- **更新频率**: 建议每月更新数据库文件
+- **准确率**: IP到国家级别准确率 > 99%
+- **覆盖范围**: 全球IPv4和IPv6地址
+
+## 📝 注意事项
+
+1. **数据库文件**: 需要定期更新GeoLite2数据库以保证准确性
+2. **请求限制**: 批量查询单次最多100个地址
+3. **超时设置**: Vercel函数执行时间限制10秒
+4. **CORS支持**: 已配置跨域访问，支持前端直接调用
+5. **错误处理**: 包含完整的错误信息和状态码
+
 ## 🚀 快速开始
 
 ### 1. 克隆项目
@@ -42,9 +107,6 @@ npm run dev
 
 访问 [`http://localhost:3000`](http://localhost:3000) 查看API文档。
 
-### 5. 部署到Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
 
 或者使用命令行：
 
@@ -248,68 +310,7 @@ curl -X POST "https://your-domain.vercel.app/api/batch" \
 }
 ```
 
-## 🔧 部署指南
 
-### 1. GitHub仓库准备
-
-1. 在GitHub创建新仓库 `GeoLite-API`
-2. 将所有代码文件上传到仓库
-3. 从MaxMind下载 `GeoLite2-Country.mmdb` 文件到 `data/` 目录
-
-### 2. Vercel部署
-
-1. 访问 [Vercel](https://vercel.com) 并登录
-2. 点击 "New Project"
-3. 选择你的GitHub仓库
-4. 配置环境变量（如需要）
-5. 点击Deploy
-
-### 3. 测试验证
-
-- 访问部署后的域名查看API文档
-- 使用 `/test` 页面进行批量测试
-- 验证单个查询和批量查询功能
-
-## 🎯 使用场景
-
-- **VPN节点过滤**: 为订阅节点添加地理标签
-- **网络分析**: 批量分析IP地址归属地
-- **安全监控**: 检测异常访问来源
-- **数据分析**: 用户地理分布统计
-- **CDN优化**: 选择最优服务节点
-- **内容分发**: 基于地理位置的内容推送
-- **合规检查**: 地域访问限制检查
-
-## 🛠️ 技术栈
-
-- **运行环境**: Node.js 18.x
-- **部署平台**: Vercel Serverless Functions
-- **数据库**: MaxMind GeoLite2-Country.mmdb
-- **核心依赖**: maxmind, dns
-- **前端**: 原生HTML/CSS/JavaScript
-
-## ⚡ 性能特点
-
-- **查询速度**: 单次查询 < 10ms
-- **批量处理**: 100个地址 < 500ms
-- **内存占用**: 数据库加载后约50MB
-- **并发支持**: Vercel无服务器自动扩展
-- **缓存优化**: 数据库内存常驻缓存
-
-## 🔍 数据准确性
-
-- **数据源**: MaxMind GeoLite2-Country数据库
-- **更新频率**: 建议每月更新数据库文件
-- **准确率**: IP到国家级别准确率 > 99%
-- **覆盖范围**: 全球IPv4和IPv6地址
-
-## 📝 注意事项
-
-1. **数据库文件**: 需要定期更新GeoLite2数据库以保证准确性
-2. **请求限制**: 批量查询单次最多100个地址
-3. **超时设置**: Vercel函数执行时间限制10秒
-4. **CORS支持**: 已配置跨域访问，支持前端直接调用
-5. **错误处理**: 包含完整的错误信息和状态码
 
 ## 🤝 贡献指南
 
