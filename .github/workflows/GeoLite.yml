@@ -38,69 +38,36 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
-    - name: Prepare proxy list
-      id: proxy
+    - name: Setup environment
       run: |
-        # 三层反代 fallback
-        echo "PROXIES<<EOF" >> $GITHUB_ENV
-        echo "https://ProxyIP.US.CMLiussss.net/" >> $GITHUB_ENV
-        echo "https://ghproxy.net/" >> $GITHUB_ENV
-        echo "https://gh.api.99988866.xyz/" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-    - name: Select working proxy
-      id: select_proxy
-      run: |
-        set -e
-        BEST_PROXY=""
-        for P in $PROXIES; do
-          echo "Testing proxy: $P"
-          # 代理可用性检测
-          if wget -q --timeout=5 --spider "${P}https://example.com"; then
-            BEST_PROXY="$P"
-            break
-          fi
-        done
-
-        if [ -z "$BEST_PROXY" ]; then
-          echo "::warning::No proxy is available, will try direct mode."
-          BEST_PROXY=""
-        fi
-
-        echo "USE_PROXY=$BEST_PROXY" >> $GITHUB_ENV
-        echo "Using proxy: $BEST_PROXY"
-
-    - name: Download GeoLite databases (with Proxy + Fallback)
-      run: |
-        set -e
         mkdir -p upload
 
+    - name: Download GeoLite databases via Worker
+      run: |
+        set -e
+
+        WORKER_URL="https://geolite2-proxy.527188.workers.dev"
         download_mmdb() {
           EDITION="$1"
-          URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
           FILE="${EDITION}.tar.gz"
+          URL="${WORKER_URL}/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
 
           echo "----------------------------------------"
           echo "Downloading $EDITION"
           echo "----------------------------------------"
 
-          # 使用最佳代理或者直连
-          if [ -n "$USE_PROXY" ]; then
-            wget -nv -O "$FILE" "${USE_PROXY}${URL}"
-          else
-            wget -nv -O "$FILE" "$URL"
-          fi
+          wget -nv -O "$FILE" "$URL" || echo "::warning::$EDITION download failed"
 
           # 检查是否为 gzip 文件
           if file "$FILE" | grep -q "gzip compressed"; then
-            echo "$EDITION is a valid gzip, extracting..."
+            echo "$EDITION valid gzip, extracting..."
             tar zxvf "$FILE"
             cp -v ${EDITION}_*/*.mmdb upload/ || true
           else
-            echo "::warning::$EDITION was NOT a valid gzip (may be 451 / HTML)"
+            echo "::warning::$EDITION is not a valid gzip file, skipping."
           fi
         }
 
