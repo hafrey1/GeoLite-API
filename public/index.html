@@ -28,7 +28,7 @@
         .header {
             text-align: center;
             margin-bottom: 50px;
-            padding: 80px 40px;
+            padding: 10px 40px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 20px;
@@ -1213,7 +1213,7 @@
 
         @media (max-width: 768px) {
             .header {
-                padding: 50px 30px;
+                padding: 20px 30px;
             }
 
             .header h1 {
@@ -1324,11 +1324,10 @@
     <div class="container">
         <div class="header">
             <h1>🌍 GeoLite API</h1>
-            <p>基于GeoLite2-Country.mmdb的高性能IP地理位置查询服务</p>
             <p>支持单个查询 • 批量处理 • 网络检测 </p>
         </div>
 
-        <!-- 4列并排模块布局 -->
+        <!-- 模块布局 -->
         <div class="modules-grid">
             <!-- 当前网络信息模块 -->
             <div class="module">
@@ -1999,230 +1998,209 @@ apple.com
             }
         }
 
-        // 获取国内IP信息（通过国内IP检测服务）
-        async function fetchDomesticIp() {
-            try {
-                setNetworkStatus('status-ipip', 'loading');
-                
-                // 使用国内IP检测服务
-                const apis = [
-                    { url: 'https://myip.ipip.net/', parser: (text) => {
-                        const match = text.match(/IP：(\d+\.\d+\.\d+\.\d+)/);
-                        return match ? { ip: match[1] } : null;
-                    }},
-                    { url: 'https://api.ip.sb/geoip', parser: (text) => JSON.parse(text) },
-                    { url: 'https://ipinfo.io/json', parser: (text) => JSON.parse(text) }
-                ];
 
-                let result = null;
-                for (const api of apis) {
-                    try {
-                        const response = await fetch(api.url);
-                        if (response.ok) {
-                            const text = await response.text();
-                            result = api.parser(text);
-                            if (result && result.ip) {
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        continue;
-                    }
-                }
+        // ==================== 通用工具函数 ====================
 
-                if (result && result.ip) {
-                    const ip = result.ip;
-                    const country = result.country || result.country_name || '国内';
-                    
-                    document.getElementById('ipip-ip').textContent = ip;
-                    document.getElementById('ipip-country').textContent = country;
-                    
-                    makeIpClickable('ipip-ip', ip);
-                    setNetworkStatus('status-ipip', 'success');
-                } else {
-                    throw new Error('无可用数据源');
+// 超时 Promise
+function withTimeout(ms, promise) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error("请求超时")), ms))
+    ]);
+}
+
+// 安全 JSON 解析
+async function safeJson(response) {
+    try {
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// UI 更新
+function setResult(idIp, idCountry, ip, country) {
+    document.getElementById(idIp).textContent = ip || "未知";
+    document.getElementById(idCountry).textContent = country || "";
+}
+
+
+// ==================== 国内 IP：多 API 轮询 ====================
+async function fetchIpipData() {
+    setStatus("status-ipip", "loading");
+
+    const titleEl = document.querySelector("#status-ipip")?.parentElement;
+
+    const apiList = [
+        {
+            name: "speedtest.cn",
+            url: "https://api-v3.speedtest.cn/ip",
+            parser: (json) => {
+                if (json?.code === 0) {
+                    return {
+                        ip: json.data.ip,
+                        country: json.data.country,
+                        city: json.data.city
+                    };
                 }
-            } catch (error) {
-                console.error('国内IP获取失败:', error);
-                document.getElementById('ipip-ip').textContent = '获取失败';
-                document.getElementById('ipip-country').textContent = '-';
-                setNetworkStatus('status-ipip', 'error');
+                return null;
+            }
+        },
+        {
+            name: "ipipv.com",
+            url: "https://myip.ipipv.com/",
+            parser: (json) => ({
+                ip: json?.Ip,
+                country: json?.Country,
+                city: json?.City
+            })
+        },
+        {
+            name: "ipip.net",
+            url: "https://myip.ipip.net/json",
+            parser: (json) => {
+                if (json?.ret === "ok") {
+                    return {
+                        ip: json.data.ip,
+                        country: json.data.location?.[0],
+                        city: json.data.location?.[2]
+                    };
+                }
+                return null;
             }
         }
+    ];
 
-        // 获取国外IP信息（通过国外DNS/IP服务）
-        async function fetchForeignIp() {
-            try {
-                setNetworkStatus('status-edgeone', 'loading');
-                
-                // 尝试多个国外 API
-                const apis = [
-                    'https://ipv4.icanhazip.com/',
-                    'https://ifconfig.me/',
-                    'https://api.ipify.org?format=json'
-                ];
+    for (const api of apiList) {
+        try {
+            const fullUrl = api.url + (api.url.includes("?") ? "&" : "?") + `_t=${Date.now()}`;
 
-                let ip = null;
-                for (const api of apis) {
-                    try {
-                        const response = await fetch(api);
-                        if (response.ok) {
-                            const text = await response.text();
-                            ip = text.trim();
-                            if (ip && ip.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        continue;
-                    }
+            const response = await withTimeout(3000, fetch(fullUrl));
+            const json = await safeJson(response);
+
+            const result = api.parser(json);
+
+            if (result?.ip) {
+                setResult("ipip-ip", "ipip-country", result.ip, `${result.country || ""} ${result.city || ""}`);
+                setStatus("status-ipip", "success");
+
+                if (titleEl) {
+                    titleEl.innerHTML = `<span class="status-indicator" id="status-ipip"></span>国内测试(${api.name})`;
+                    setStatus("status-ipip", "success");
                 }
 
-                if (ip) {
-                    // 尝试获取国家信息
-                    let country = '外网IP';
-                    try {
-                        const geoResponse = await fetch(`https://ipinfo.io/${ip}/json`);
-                        if (geoResponse.ok) {
-                            const geoData = await geoResponse.json();
-                            country = geoData.country || geoData.country_name || '外网IP';
-                        }
-                    } catch (e) {
-                        // 使用默认值
-                    }
-                    
-                    document.getElementById('edgeone-ip').textContent = ip;
-                    document.getElementById('edgeone-country').textContent = country;
-                    
-                    makeIpClickable('edgeone-ip', ip);
-                    setNetworkStatus('status-edgeone', 'success');
-                } else {
-                    throw new Error('无可用IP数据');
-                }
-            } catch (error) {
-                console.error('国外IP获取失败:', error);
-                document.getElementById('edgeone-ip').textContent = '获取失败';
-                document.getElementById('edgeone-country').textContent = '-';
-                setNetworkStatus('status-edgeone', 'error');
+                console.log(`国内 API 使用：${api.name}`);
+                return;
             }
+        } catch (err) {
+            console.warn(`${api.name} API 失败:`, err);
+        }
+    }
+
+    // 全部失败
+    document.getElementById("ipip-ip").innerHTML = `<span class="error">加载失败</span>`;
+    document.getElementById("ipip-country").textContent = "";
+    setStatus("status-ipip", "error");
+}
+
+
+
+// ==================== 国外 IP ====================
+async function fetchEdgeOneData() {
+    setStatus("status-edgeone", "loading");
+
+    try {
+        const response = await withTimeout(
+            3000,
+            fetch(`https://api.ipapi.cmliussss.net`)
+        );
+        const data = await safeJson(response);
+
+        const ip = data?.ip;
+        const country = data?.location?.country_code;
+        const asn = data?.asn?.asn;
+        const org = data?.asn?.org;
+
+        if (ip) {
+            setResult("edgeone-ip", "edgeone-country", ip, `${country || ""} AS${asn || ""} ${org || ""}`);
+            setStatus("status-edgeone", "success");
+        } else {
+            throw new Error("结构错误");
         }
 
-        // 获取CloudFlare IP信息
-        async function fetchCloudFlareIp() {
-            try {
-                setNetworkStatus('status-cf', 'loading');
-                
-                // 尝试 CF 专用端点
-                const apis = [
-                    'https://www.cloudflare.com/cdn-cgi/trace',
-                    'https://cf.090227.xyz/ip.json'
-                ];
+    } catch (err) {
+        document.getElementById("edgeone-ip").innerHTML = `<span class="error">加载失败</span>`;
+        document.getElementById("edgeone-country").textContent = "";
+        setStatus("status-edgeone", "error");
+        console.error("EdgeOne 错误: ", err);
+    }
+}
 
-                let ip = null;
-                let country = 'CF节点';
-                
-                for (const api of apis) {
-                    try {
-                        const response = await fetch(api);
-                        if (response.ok) {
-                            const text = await response.text();
-                            if (api.includes('trace')) {
-                                // 解析 CF trace 格式
-                                const lines = text.split('\n');
-                                for (const line of lines) {
-                                    if (line.startsWith('ip=')) {
-                                        ip = line.substring(3);
-                                        break;
-                                    }
-                                }
-                            } else {
-                                // 解析 JSON 格式
-                                const data = await response.json();
-                                ip = data.ip;
-                            }
-                            if (ip && ip.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        continue;
-                    }
-                }
 
-                if (ip) {
-                    document.getElementById('cf-ip').textContent = ip;
-                    document.getElementById('cf-country').textContent = country;
-                    
-                    makeIpClickable('cf-ip', ip);
-                    setNetworkStatus('status-cf', 'success');
-                } else {
-                    throw new Error('无法获取CF IP');
-                }
-            } catch (error) {
-                console.error('CloudFlare IP获取失败:', error);
-                document.getElementById('cf-ip').textContent = '获取失败';
-                document.getElementById('cf-country').textContent = '-';
-                setNetworkStatus('status-cf', 'error');
-            }
+
+// ==================== Cloudflare ====================
+async function fetchCloudFlareData() {
+    setStatus("status-cf", "loading");
+
+    try {
+        const response = await withTimeout(
+            3000,
+            fetch(`https://cf.090227.xyz/ip.json?_t=${Date.now()}`)
+        );
+        const data = await safeJson(response);
+
+        if (data?.ip) {
+            setResult("cf-ip", "cf-country", data.ip, `${data.country || ""} ${data.org || ""}`);
+            setStatus("status-cf", "success");
+        } else {
+            throw new Error("结构错误");
         }
 
-        // 获取Twitter IP信息
-        async function fetchTwitterIp() {
-            try {
-                setNetworkStatus('status-twitter', 'loading');
-                
-                // 尝试 Twitter/X 和备用 API
-                const apis = [
-                    'https://x.com/cdn-cgi/trace',
-                    'https://twitter.com/cdn-cgi/trace',
-                    'https://ifconfig.me/'
-                ];
+    } catch (err) {
+        document.getElementById("cf-ip").innerHTML = `<span class="error">加载失败</span>`;
+        document.getElementById("cf-country").textContent = "";
+        setStatus("status-cf", "error");
+        console.error("Cloudflare 错误:", err);
+    }
+}
 
-                let ip = null;
-                
-                for (const api of apis) {
-                    try {
-                        const response = await fetch(api);
-                        if (response.ok) {
-                            const text = await response.text();
-                            if (api.includes('trace')) {
-                                // 解析 trace 格式
-                                const lines = text.split('\n');
-                                for (const line of lines) {
-                                    if (line.startsWith('ip=')) {
-                                        ip = line.substring(3);
-                                        break;
-                                    }
-                                }
-                            } else {
-                                // 直接 IP 响应
-                                ip = text.trim();
-                            }
-                            if (ip && ip.match(/^\d+\.\d+\.\d+\.\d+$/)) {
-                                break;
-                            }
-                        }
-                    } catch (e) {
-                        continue;
-                    }
-                }
 
-                if (ip) {
-                    document.getElementById('twitter-ip').textContent = ip;
-                    document.getElementById('twitter-country').textContent = 'X/Twitter';
-                    
-                    makeIpClickable('twitter-ip', ip);
-                    setNetworkStatus('status-twitter', 'success');
-                } else {
-                    throw new Error('无法获取Twitter IP');
-                }
-            } catch (error) {
-                console.error('Twitter IP获取失败:', error);
-                document.getElementById('twitter-ip').textContent = '获取失败';
-                document.getElementById('twitter-country').textContent = '-';
-                setNetworkStatus('status-twitter', 'error');
-            }
+
+// ==================== Twitter / X ====================
+async function fetchTwitterData() {
+    setStatus("status-twitter", "loading");
+
+    try {
+        const response = await withTimeout(
+            3000,
+            fetch(`https://x.com/cdn-cgi/trace?_t=${Date.now()}`, {
+                redirect: "follow"
+            })
+        );
+
+        const raw = await response.text();
+        const data = {};
+
+        raw.split("\n").forEach((line) => {
+            const [k, v] = line.split("=");
+            if (k && v) data[k.trim()] = v.trim();
+        });
+
+        if (data.ip) {
+            setResult("twitter-ip", "twitter-country", data.ip, `${data.loc || ""} ${data.colo || ""}`);
+            setStatus("status-twitter", "success");
+        } else {
+            throw new Error("解析失败");
         }
+
+    } catch (err) {
+        document.getElementById("twitter-ip").innerHTML = `<span class="error">加载失败</span>`;
+        document.getElementById("twitter-country").textContent = "";
+        setStatus("status-twitter", "error");
+        console.error("Twitter 入口错误:", err);
+    }
+}
+
 
         // 使IP可点击，显示详细信息
         function makeIpClickable(elementId, ip) {
@@ -2321,15 +2299,16 @@ apple.com
         async function loadNetworkCards() {
             try {
                 await Promise.all([
-                    fetchDomesticIp(),
-                    fetchForeignIp(),
-                    fetchCloudFlareIp(),
-                    fetchTwitterIp()
+                    fetchIpipData(),        // 国内 IP
+                    fetchEdgeOneData(),     // 国外 IP
+                    fetchCloudFlareData(),  // Cloudflare
+                    fetchTwitterData()      // Twitter/X
                 ]);
             } catch (error) {
                 console.error('加载网络信息出错:', error);
             }
         }
+
 
         // ===== 网络信息检测功能 =====
         async function detectNetworkInfo() {
