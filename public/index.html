@@ -1908,7 +1908,7 @@ apple.com
                     `<div class="error">❌ 查询失败：${error.message}</div>`;
             } finally {
                 queryBtn.disabled = false;
-                queryBtn.innerHTML = '🚀 开始批量查询';
+                queryBtn.innerHTML = '🚀 开始查询';
                 hideProgress();
             }
         }
@@ -2461,7 +2461,6 @@ async function fetchTwitterData() {
 
         // 页面加载时自动检测网络信息
         window.addEventListener('load', function() {
-            detectNetworkInfo();
             loadNetworkCards();
             loadSampleData();
         });
