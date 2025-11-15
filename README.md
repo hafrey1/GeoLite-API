@@ -25,7 +25,7 @@
 
 ### 2. Vercel部署
 
-[![一键部署](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
+- 一键部署[![一键部署](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
 
 1. 访问 [Vercel](https://vercel.com) 并登录
 2. 点击 "New Project"
