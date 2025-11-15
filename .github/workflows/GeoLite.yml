@@ -4,9 +4,6 @@ on:
   workflow_dispatch:  # 手动触发
   schedule:
     - cron: "0 1 */3 * *"  # 每 3 天触发
-  push:
-    branches-ignore:
-      - download  # 避免 push 到 download 分支触发 workflow
 
 jobs:
   run:
