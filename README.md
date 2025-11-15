@@ -323,16 +323,11 @@ curl -X POST "https://your-domain.vercel.app/api/batch" \
 
 MIT License - 查看 [LICENSE](LICENSE) 文件了解详情
 
-## 📞 联系方式
-
-- 作者: hafrey
-- 邮箱: [hafreyli@gmail.com](mailto:hafreyli@gmail.com)
-- 项目链接: https://github.com/hafrey1/GeoLite-API
-
 ## 🙏 致谢
 
 - [MaxMind](https://www.maxmind.com/) 提供的GeoLite2数据库
 - [Vercel](https://vercel.com/) 提供的优秀部署平台
+- [cmliu](https://github.com/cmliu) 参考大佬代码
 - 所有贡献者和使用者的支持
 
 ---
