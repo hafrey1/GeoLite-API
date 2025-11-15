@@ -2113,7 +2113,7 @@ async function fetchEdgeOneData() {
     try {
         const response = await withTimeout(
             3000,
-            fetch(`https://api.ipapi.cmliussss.net?_t=${Date.now()}`)
+            fetch(`https://api.ipapi.cmliussss.net`)
         );
         const data = await safeJson(response);
 
