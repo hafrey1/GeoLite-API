@@ -1,4 +1,4 @@
-# 🌍 GeoLite-API
+# 🌍 GeoLite-IP
 
 个人网络环境健康检测工具，支持混合IP与域名查询，支持单个IP与域名查询，批量处理查询，使用MaxMind GeoLite2-Country.mmdb数据库地理位置查询API，可一键部署到Vercel。
 
@@ -44,7 +44,7 @@ npm run dev
 
 ### 5. 部署到Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/GeoLite-API)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/GeoLite-IP)
 
 或者使用命令行：
 
