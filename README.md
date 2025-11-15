@@ -1,6 +1,6 @@
 # 🌍 GeoLite-API
 
-基于MaxMind GeoLite2-Country.mmdb数据库的高性能IP地理位置查询API，支持批量查询混合IP与域名，可一键部署到Vercel。
+个人网络环境健康检测工具，支持混合IP与域名查询，支持单个IP与域名查询，批量处理查询，使用MaxMind GeoLite2-Country.mmdb数据库地理位置查询API，可一键部署到Vercel。
 
 ## ✨ 特性
 
