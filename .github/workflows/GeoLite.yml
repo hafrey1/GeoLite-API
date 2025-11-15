@@ -49,12 +49,10 @@ jobs:
       run: |
         set -e
 
-        WORKER_URL="https://geolite2-proxy.527188.workers.dev"
-
         download_mmdb() {
           EDITION="$1"
           FILE="${EDITION}.tar.gz"
-          URL="${WORKER_URL}/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
+          URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
 
           echo "----------------------------------------"
           echo "Downloading $EDITION"
