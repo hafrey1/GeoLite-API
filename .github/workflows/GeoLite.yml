@@ -33,7 +33,7 @@ on:
   repository_dispatch:
   workflow_dispatch:
   schedule:
-    - cron: 0 1 */3 * *
+    - cron: "0 1 */3 * *"
 
 jobs:
   run:
@@ -41,33 +41,72 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Download GeoLite databases (with ProxyIP.US.CMLiussss.net)
+    - name: Prepare proxy list
+      id: proxy
+      run: |
+        # 三层反代 fallback
+        echo "PROXIES<<EOF" >> $GITHUB_ENV
+        echo "https://ProxyIP.US.CMLiussss.net/" >> $GITHUB_ENV
+        echo "https://ghproxy.net/" >> $GITHUB_ENV
+        echo "https://gh.api.99988866.xyz/" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Select working proxy
+      id: select_proxy
+      run: |
+        set -e
+        BEST_PROXY=""
+        for P in $PROXIES; do
+          echo "Testing proxy: $P"
+          # 代理可用性检测
+          if wget -q --timeout=5 --spider "${P}https://example.com"; then
+            BEST_PROXY="$P"
+            break
+          fi
+        done
+
+        if [ -z "$BEST_PROXY" ]; then
+          echo "::warning::No proxy is available, will try direct mode."
+          BEST_PROXY=""
+        fi
+
+        echo "USE_PROXY=$BEST_PROXY" >> $GITHUB_ENV
+        echo "Using proxy: $BEST_PROXY"
+
+    - name: Download GeoLite databases (with Proxy + Fallback)
       run: |
         set -e
         mkdir -p upload
-        PROXY="https://ProxyIP.US.CMLiussss.net/"
 
-        for EDITION in GeoLite2-ASN GeoLite2-City GeoLite2-Country; do
-          echo "Downloading $EDITION ..."
+        download_mmdb() {
+          EDITION="$1"
+          URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
+          FILE="${EDITION}.tar.gz"
 
-          # 尝试下载（通过代理）
-          if wget -nv -O ${EDITION}.tar.gz \
-            "${PROXY}https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"; then
+          echo "----------------------------------------"
+          echo "Downloading $EDITION"
+          echo "----------------------------------------"
 
-            # 检查是否是真正的 gzip（不是 451 HTML）
-            if file ${EDITION}.tar.gz | grep -q "gzip compressed"; then
-              echo "$EDITION OK → extracting..."
-              tar zxvf ${EDITION}.tar.gz
-              cp -v ${EDITION}_*/*.mmdb upload || true
-            else
-              echo "::warning::$EDITION 被地区屏蔽 (451)，代理返回 HTML，而不是 gzip 文件"
-            fi
-
+          # 使用最佳代理或者直连
+          if [ -n "$USE_PROXY" ]; then
+            wget -nv -O "$FILE" "${USE_PROXY}${URL}"
           else
-            echo "::warning::$EDITION 下载失败"
+            wget -nv -O "$FILE" "$URL"
           fi
 
-        done
+          # 检查是否为 gzip 文件
+          if file "$FILE" | grep -q "gzip compressed"; then
+            echo "$EDITION is a valid gzip, extracting..."
+            tar zxvf "$FILE"
+            cp -v ${EDITION}_*/*.mmdb upload/ || true
+          else
+            echo "::warning::$EDITION was NOT a valid gzip (may be 451 / HTML)"
+          fi
+        }
+
+        download_mmdb "GeoLite2-ASN"
+        download_mmdb "GeoLite2-City"
+        download_mmdb "GeoLite2-Country"
 
         echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
 
@@ -89,7 +128,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ env.TAG_NAME }}
-        body: ${{ env.TAG_NAME }}
+        body: "Auto-build GeoLite.mmdb — ${{ env.TAG_NAME }}"
         files: upload/*.mmdb
 
     - name: Remove old Releases
@@ -105,4 +144,3 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
-
