@@ -2024,7 +2024,7 @@ function setResult(idIp, idCountry, ip, country) {
     document.getElementById(idCountry).textContent = country || "";
 }
 
-
+        
 // ==================== 国内 IP：多 API 轮询 ====================
 async function fetchIpipData() {
     setStatus("status-ipip", "loading");
@@ -2082,6 +2082,7 @@ async function fetchIpipData() {
 
             if (result?.ip) {
                 setResult("ipip-ip", "ipip-country", result.ip, `${result.country || ""} ${result.city || ""}`);
+                makeIpClickable("ipip-ip", result.ip);  // ← 绑定点击
                 setStatus("status-ipip", "success");
 
                 if (titleEl) {
@@ -2104,7 +2105,6 @@ async function fetchIpipData() {
 }
 
 
-
 // ==================== 国外 IP ====================
 async function fetchEdgeOneData() {
     setStatus("status-edgeone", "loading");
@@ -2123,6 +2123,7 @@ async function fetchEdgeOneData() {
 
         if (ip) {
             setResult("edgeone-ip", "edgeone-country", ip, `${country || ""} AS${asn || ""} ${org || ""}`);
+            makeIpClickable("edgeone-ip", ip);  // ← 绑定点击
             setStatus("status-edgeone", "success");
         } else {
             throw new Error("结构错误");
@@ -2151,6 +2152,7 @@ async function fetchCloudFlareData() {
 
         if (data?.ip) {
             setResult("cf-ip", "cf-country", data.ip, `${data.country || ""} ${data.org || ""}`);
+            makeIpClickable("cf-ip", data.ip);  // ← 绑定点击
             setStatus("status-cf", "success");
         } else {
             throw new Error("结构错误");
@@ -2188,6 +2190,7 @@ async function fetchTwitterData() {
 
         if (data.ip) {
             setResult("twitter-ip", "twitter-country", data.ip, `${data.loc || ""} ${data.colo || ""}`);
+            makeIpClickable("twitter-ip", data.ip); // ← 已绑定
             setStatus("status-twitter", "success");
         } else {
             throw new Error("解析失败");
