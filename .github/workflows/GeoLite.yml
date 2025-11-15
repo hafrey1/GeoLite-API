@@ -3,7 +3,7 @@ name: Publish GeoLite.mmdb
 on:
   workflow_dispatch:  # 手动触发
   schedule:
-    - cron: "0 1 */3 * *"  # 每 3 天定时触发
+    - cron: "0 1 */3 * *"  # 每 3 天触发
   push:
     branches-ignore:
       - download  # 避免 push 到 download 分支触发 workflow
@@ -11,12 +11,13 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
     - name: Setup environment
       run: |
         mkdir -p upload
+        mkdir -p data
 
     - name: Download GeoLite databases
       id: download_mmdb
@@ -85,6 +86,28 @@ jobs:
         tag_name: ${{ env.TAG_NAME }}
         body: "Auto-build GeoLite.mmdb — ${{ env.TAG_NAME }}"
         files: upload/*.mmdb
+
+    - name: Update data folder
+      run: |
+        # 复制 Country mmdb 到 data 文件夹
+        if [ -f upload/GeoLite2-Country.mmdb ]; then
+          cp -v upload/GeoLite2-Country.mmdb data/
+        else
+          echo "::warning::GeoLite2-Country.mmdb not found in upload folder"
+          exit 1
+        fi
+
+        # 提交更新到主分支
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git add data/GeoLite2-Country.mmdb
+
+        if git diff --cached --quiet; then
+          echo "No changes in data folder, skipping commit"
+        else
+          git commit -m "Update GeoLite2-Country.mmdb — ${{ env.TAG_NAME }}"
+          git push origin HEAD:main
+        fi
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@master
