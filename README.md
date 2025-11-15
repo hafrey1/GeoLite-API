@@ -44,7 +44,7 @@ npm run dev
 
 ### 5. 部署到Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/GeoLite-IP)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
 
 或者使用命令行：
 
