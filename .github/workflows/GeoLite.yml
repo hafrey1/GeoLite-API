@@ -14,6 +14,9 @@ jobs:
     timeout-minutes: 25
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: Setup environment
       run: |
         mkdir -p upload
@@ -33,16 +36,13 @@ jobs:
           echo "Downloading $EDITION"
           echo "----------------------------------------"
 
-          # 官方下载带重试
-          wget --tries=10 --waitretry=30 --retry-connrefused -nv -O "$FILE" "$URL" || echo "::warning::$EDITION download failed"
+          wget --tries=3 --waitretry=30 --retry-connrefused -nv -O "$FILE" "$URL" || echo "::warning::$EDITION download failed"
 
-          # 检查是否为 gzip 文件
           if [ -f "$FILE" ] && file "$FILE" | grep -q "gzip compressed"; then
             echo "$EDITION valid gzip, extracting..."
             tar zxvf "$FILE"
             cp -v ${EDITION}_*/*.mmdb upload/ || echo "::warning::No .mmdb file found for $EDITION"
           else
-            # fallback 链接
             if [ "$EDITION" = "GeoLite2-City" ]; then
               echo "City download failed, using fallback..."
               wget -nv -O upload/GeoLite2-City.mmdb "https://git.io/GeoLite2-City.mmdb"
@@ -99,9 +99,11 @@ jobs:
         mkdir -p data
         if [ -f upload/GeoLite2-Country.mmdb ]; then
           cp -v upload/GeoLite2-Country.mmdb data/
+
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add data/GeoLite2-Country.mmdb
+
           if git diff --cached --quiet; then
             echo "No changes in data folder, skipping commit"
           else
