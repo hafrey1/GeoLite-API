@@ -38,7 +38,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
     - name: Setup environment
@@ -50,6 +50,7 @@ jobs:
         set -e
 
         WORKER_URL="https://geolite2-proxy.527188.workers.dev"
+
         download_mmdb() {
           EDITION="$1"
           FILE="${EDITION}.tar.gz"
@@ -62,10 +63,10 @@ jobs:
           wget -nv -O "$FILE" "$URL" || echo "::warning::$EDITION download failed"
 
           # 检查是否为 gzip 文件
-          if file "$FILE" | grep -q "gzip compressed"; then
+          if [ -f "$FILE" ] && file "$FILE" | grep -q "gzip compressed"; then
             echo "$EDITION valid gzip, extracting..."
             tar zxvf "$FILE"
-            cp -v ${EDITION}_*/*.mmdb upload/ || true
+            cp -v ${EDITION}_*/*.mmdb upload/ || echo "::warning::No .mmdb file found for $EDITION"
           else
             echo "::warning::$EDITION is not a valid gzip file, skipping."
           fi
@@ -76,6 +77,8 @@ jobs:
         download_mmdb "GeoLite2-Country"
 
         echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+        echo "Files in upload folder:"
+        ls -lh upload || echo "No files to upload"
 
     - name: Push to download branch
       run: |
@@ -85,12 +88,18 @@ jobs:
         git config user.email "${{ github.actor }}@users.noreply.github.com"
         git checkout -b download
         git add .
-        git commit -m "${{ env.TAG_NAME }}"
-        # 使用 GITHUB_TOKEN 自动推送，无需自定义 PAT
-        git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-        git push -f origin download
+
+        # 检查是否有文件需要提交
+        if git diff --cached --quiet; then
+          echo "No files to commit, skipping push"
+        else
+          git commit -m "${{ env.TAG_NAME }}"
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push -f origin download
+        fi
 
     - name: Upload to Releases
+      if: success() && (steps.download_mmdb.outputs.has_files == 'true' || always())
       uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,6 +121,7 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
