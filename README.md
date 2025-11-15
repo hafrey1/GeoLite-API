@@ -17,7 +17,7 @@
 
 ## 🔧 部署指南
 
-### 1. GitHub仓库准备
+### 1. GitHub仓库准备(可以忽略已实现自动更新 `GeoLite2-Country.mmdb` )
 
 1. 在GitHub创建新仓库 `GeoLite-API`
 2. 将所有代码文件上传到仓库
@@ -26,7 +26,7 @@
 ### 2. Vercel部署
 
 - 一键部署
--
+
 - [![一键部署](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/hafrey1/GeoLite-IP)
 
 1. 访问 [Vercel](https://vercel.com) 并登录
