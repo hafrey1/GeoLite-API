@@ -41,16 +41,37 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Download GeoLite.mmdb
+    - name: Download GeoLite databases (with ProxyIP.US.CMLiussss.net)
       run: |
-        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz" | tar zxv
-        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz" | tar zxv
-        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz" | tar zxv
+        set -e
         mkdir -p upload
-        cp -v GeoLite*/*.mmdb upload
+        PROXY="https://ProxyIP.US.CMLiussss.net/"
+
+        for EDITION in GeoLite2-ASN GeoLite2-City GeoLite2-Country; do
+          echo "Downloading $EDITION ..."
+
+          # 尝试下载（通过代理）
+          if wget -nv -O ${EDITION}.tar.gz \
+            "${PROXY}https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"; then
+
+            # 检查是否是真正的 gzip（不是 451 HTML）
+            if file ${EDITION}.tar.gz | grep -q "gzip compressed"; then
+              echo "$EDITION OK → extracting..."
+              tar zxvf ${EDITION}.tar.gz
+              cp -v ${EDITION}_*/*.mmdb upload || true
+            else
+              echo "::warning::$EDITION 被地区屏蔽 (451)，代理返回 HTML，而不是 gzip 文件"
+            fi
+
+          else
+            echo "::warning::$EDITION 下载失败"
+          fi
+
+        done
+
         echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
 
-    - name: Push to "download" branch
+    - name: Push to download branch
       run: |
         cd upload
         git init
@@ -84,3 +105,4 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+
