@@ -1,9 +1,9 @@
 name: Publish GeoLite.mmdb
 
 on:
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
   schedule:
-    - cron: "0 1 */3 * *"  # 每 3 天触发
+    - cron: "0 1 */3 * *"
 
 jobs:
   run:
@@ -19,7 +19,7 @@ jobs:
         mkdir -p upload
         mkdir -p data
 
-    - name: Download GeoLite databases
+    - name: Download GeoLite databases (fixed suffix)
       id: download_mmdb
       run: |
         set -e
@@ -27,7 +27,7 @@ jobs:
         download_mmdb() {
           EDITION="$1"
           FILE="${EDITION}.tar.gz"
-          URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${{ secrets.LICENSE_KEY }}&suffix=tar.gz"
+          URL="https://download.maxmind.com/app/geoip_download?edition_id=${EDITION}&license_key=${LICENSE_KEY}&suffix=tar.gz"
 
           echo "----------------------------------------"
           echo "Downloading $EDITION"
@@ -40,26 +40,31 @@ jobs:
             tar zxvf "$FILE"
             cp -v ${EDITION}_*/*.mmdb upload/ || echo "::warning::No .mmdb file found for $EDITION"
           else
-            if [ "$EDITION" = "GeoLite2-City" ]; then
-              echo "City download failed, using fallback..."
-              wget -nv -O upload/GeoLite2-City.mmdb "https://git.io/GeoLite2-City.mmdb"
-            elif [ "$EDITION" = "GeoLite2-Country" ]; then
-              echo "Country download failed, using fallback..."
-              wget -nv -O upload/GeoLite2-Country.mmdb "https://git.io/GeoLite2-Country.mmdb"
-            elif [ "$EDITION" = "GeoLite2-ASN" ]; then
-              echo "ASN download failed, using fallback..."
-              wget -nv -O upload/GeoLite2-ASN.mmdb "https://git.io/GeoLite2-ASN.mmdb"
-            else
-              echo "::warning::$EDITION is not a valid gzip file, skipping."
-            fi
+            echo "Download failed or invalid file, using fallback..."
+            case "$EDITION" in
+              GeoLite2-City)
+                wget -nv -O upload/GeoLite2-City.mmdb "https://git.io/GeoLite2-City.mmdb"
+                ;;
+              GeoLite2-Country)
+                wget -nv -O upload/GeoLite2-Country.mmdb "https://git.io/GeoLite2-Country.mmdb"
+                ;;
+              GeoLite2-ASN)
+                wget -nv -O upload/GeoLite2-ASN.mmdb "https://git.io/GeoLite2-ASN.mmdb"
+                ;;
+              *)
+                echo "::warning::$EDITION invalid suffix or unreadable file."
+                ;;
+            esac
           fi
         }
+
+        export LICENSE_KEY="${{ secrets.LICENSE_KEY }}"
 
         download_mmdb "GeoLite2-ASN"
         download_mmdb "GeoLite2-City"
         download_mmdb "GeoLite2-Country"
 
-        echo "::set-output name=has_files::true"
+        echo "has_files=true" >> $GITHUB_OUTPUT
         echo "TAG_NAME=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
         echo "Files in upload folder:"
         ls -lh upload || echo "No files to upload"
